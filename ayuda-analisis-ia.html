@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>❓ Ayuda — Análisis Financiero con IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --azul:#4361ee;--morado:#7209b7;--verde:#06d6a0;--naranja:#fb8500;
+            --rojo:#ef233c;--cyan:#4cc9f0;--oscuro:#0d0d1a;--card:#13131f;
+            --borde:rgba(255,255,255,.08);--texto:rgba(255,255,255,.85);
+            --texto2:rgba(255,255,255,.45);--grad:linear-gradient(135deg,#4361ee,#7209b7);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'DM Sans',sans-serif;background:var(--oscuro);color:var(--texto);min-height:100vh;}
+        body::before{content:'';position:fixed;inset:0;z-index:0;
+            background:radial-gradient(ellipse 60% 50% at 5% 10%,rgba(67,97,238,.1) 0%,transparent 55%),
+                radial-gradient(ellipse 50% 40% at 95% 90%,rgba(114,9,183,.08) 0%,transparent 55%);
+            pointer-events:none;}
+        .cab{position:sticky;top:0;z-index:100;background:rgba(13,13,26,.88);backdrop-filter:blur(20px);
+            border-bottom:1px solid var(--borde);padding:14px 28px;
+            display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+        .cab h1{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
+            background:linear-gradient(135deg,#fff 40%,#a78bfa);-webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;background-clip:text;}
+        .cab-der{display:flex;gap:8px;flex-wrap:wrap;}
+        .btn-cab{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+            color:rgba(255,255,255,.75);padding:8px 16px;border-radius:8px;cursor:pointer;
+            font-size:13px;font-weight:500;transition:all .2s;text-decoration:none;
+            display:inline-flex;align-items:center;gap:6px;}
+        .btn-cab:hover{background:rgba(255,255,255,.13);color:white;border-color:rgba(255,255,255,.25);}
+        .btn-cab.primario{background:var(--grad);border-color:transparent;color:white;font-weight:700;}
+        .btn-cab.primario:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(67,97,238,.4);}
+        .contenedor{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:28px 20px 60px;}
+        .buscador{width:100%;padding:14px 18px;background:var(--card);border:1px solid var(--borde);
+            border-radius:12px;font-size:15px;color:var(--texto);transition:border-color .2s;outline:none;
+            font-family:'DM Sans',sans-serif;margin-bottom:24px;}
+        .buscador::placeholder{color:var(--texto2);}
+        .buscador:focus{border-color:rgba(67,97,238,.5);background:rgba(67,97,238,.06);}
+        .no-resultados{display:none;text-align:center;padding:30px;color:var(--texto2);font-size:15px;}
+        .card{background:var(--card);border:1px solid var(--borde);border-radius:18px;padding:26px 28px;margin-bottom:18px;}
+        .card h2{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--texto);
+            margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--borde);
+            display:flex;align-items:center;gap:10px;}
+        .card h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--texto);margin:20px 0 10px;}
+        .card p{font-size:14px;color:var(--texto2);line-height:1.7;margin-bottom:12px;}
+        .card p strong{color:var(--texto);}
+        .info{border-radius:12px;padding:16px 18px;margin:12px 0;}
+        .info.azul{background:rgba(67,97,238,.1);border-left:3px solid var(--azul);}
+        .info.verde{background:rgba(6,214,160,.08);border-left:3px solid var(--verde);}
+        .info.naranja{background:rgba(251,133,0,.08);border-left:3px solid var(--naranja);}
+        .info.rojo{background:rgba(239,35,60,.08);border-left:3px solid var(--rojo);}
+        .info h4{font-size:14px;font-weight:700;margin-bottom:8px;color:var(--texto);}
+        .info p,.info li{font-size:13px;color:var(--texto2);line-height:1.7;}
+        .info ul{margin-left:16px;}.info li{margin-bottom:5px;}.info li strong{color:var(--texto);}
+        .paso{display:flex;gap:16px;align-items:flex-start;margin-bottom:18px;padding-bottom:18px;
+            border-bottom:1px solid rgba(255,255,255,.04);}
+        .paso:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+        .paso-num{background:rgba(67,97,238,.25);border:1px solid rgba(67,97,238,.4);color:#a78bfa;
+            border-radius:50%;width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;
+            justify-content:center;font-weight:800;font-size:15px;}
+        .paso-cuerpo h4{font-size:14px;font-weight:700;color:var(--texto);margin-bottom:6px;}
+        .paso-cuerpo p{font-size:14px;color:var(--texto2);line-height:1.65;}
+        .paso-cuerpo .detalle{background:rgba(255,255,255,.03);border:1px solid var(--borde);
+            border-radius:10px;padding:12px 14px;margin-top:8px;font-size:13px;color:var(--texto2);line-height:1.7;}
+        .paso-cuerpo .detalle strong{color:var(--texto);}
+        code{background:rgba(255,255,255,.08);color:#c8d6ff;padding:2px 7px;border-radius:4px;font-size:13px;font-family:monospace;}
+        .tabla-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--borde);margin:12px 0;}
+        .tabla{width:100%;border-collapse:collapse;font-size:13px;}
+        .tabla thead{background:rgba(255,255,255,.04);}
+        .tabla th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;
+            letter-spacing:.6px;color:var(--texto2);border-bottom:1px solid var(--borde);white-space:nowrap;}
+        .tabla td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top;color:var(--texto2);line-height:1.55;}
+        .tabla tr:last-child td{border-bottom:none;}
+        .tabla tr:hover td{background:rgba(255,255,255,.02);}
+        .tabla td:first-child{font-weight:700;color:var(--azul);white-space:nowrap;}
+        .ia-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0;}
+        .ia-card{border-radius:12px;padding:14px 10px;text-align:center;color:white;font-size:12px;font-weight:700;}
+        .ia-card .ia-ico{font-size:26px;display:block;margin-bottom:5px;}
+        .ia-card .ia-nombre{display:block;margin-bottom:3px;}
+        .ia-card .ia-tip{font-size:10px;opacity:.8;}
+        .ia-gemini{background:linear-gradient(135deg,#4285F4,#34A853);}
+        .ia-deepseek{background:linear-gradient(135deg,#1a1a2e,#30363d);}
+        .ia-chatgpt{background:linear-gradient(135deg,#10a37f,#1a7f64);}
+        .ia-claude{background:linear-gradient(135deg,#cc785c,#a0522d);}
+        .ia-mistral{background:linear-gradient(135deg,#7c3aed,#5b21b6);}
+        .ia-perplexity{background:linear-gradient(135deg,#e85d04,#dc2f02);}
+        .ia-copilot{background:linear-gradient(135deg,#0066ff,#0044cc);}
+        .ia-hf{background:linear-gradient(135deg,#059669,#047857);}
+        .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+        .badge.verde{background:rgba(6,214,160,.15);color:var(--verde);border:1px solid rgba(6,214,160,.3);}
+        .grupo-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+            color:var(--texto2);margin:18px 0 10px;}
+        .faq-item{border:1px solid var(--borde);border-radius:12px;margin-bottom:8px;overflow:hidden;}
+        .faq-q{padding:15px 18px;cursor:pointer;font-weight:600;font-size:14px;display:flex;
+            justify-content:space-between;align-items:center;background:rgba(255,255,255,.02);
+            transition:background .15s;color:var(--texto);}
+        .faq-q:hover{background:rgba(255,255,255,.05);}
+        .faq-q .chev{color:var(--azul);font-size:13px;flex-shrink:0;}
+        .faq-a{padding:0 18px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .3s;
+            font-size:14px;color:var(--texto2);line-height:1.7;}
+        .faq-a.open{max-height:500px;padding:14px 18px;}
+        .flujo-buscador{display:flex;gap:0;margin:18px 0;flex-wrap:wrap;}
+        .flujo-paso{display:flex;align-items:center;gap:8px;padding:10px 14px;
+            background:rgba(255,255,255,.03);border:1px solid var(--borde);
+            font-size:13px;font-weight:600;color:var(--texto2);}
+        .flujo-paso:first-child{border-radius:10px 0 0 10px;}
+        .flujo-paso:last-child{border-radius:0 10px 10px 0;}
+        .flujo-paso .num{width:22px;height:22px;border-radius:50%;background:rgba(67,97,238,.3);
+            border:1px solid rgba(67,97,238,.4);color:#a78bfa;font-size:11px;font-weight:800;
+            display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .flujo-flecha{display:flex;align-items:center;color:rgba(255,255,255,.15);font-size:18px;
+            padding:0 2px;border-top:1px solid var(--borde);border-bottom:1px solid var(--borde);
+            background:rgba(255,255,255,.02);}
+        .glosario-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px;}
+        .glosario-item{background:rgba(255,255,255,.03);border:1px solid var(--borde);border-radius:12px;padding:14px 16px;}
+        .glosario-item .term{font-weight:800;color:var(--azul);font-size:14px;margin-bottom:4px;}
+        .glosario-item .def{font-size:13px;color:var(--texto2);line-height:1.55;}
+        .glosario-item .escala{font-size:11px;color:var(--verde);margin-top:4px;}
+        .footer-btns{text-align:center;padding:20px 0 10px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+        .seccion-ayuda{margin-bottom:8px;}
+        @media(max-width:600px){
+            .ia-grid{grid-template-columns:repeat(2,1fr);}
+            .contenedor{padding:16px 14px 48px;}
+            .flujo-buscador{flex-direction:column;}
+            .flujo-paso:first-child,.flujo-paso:last-child{border-radius:10px;}
+            .flujo-flecha{display:none;}
+        }
+    </style>
+</head>
+<body>
+
+<div class="cab">
+    <div style="display:flex;align-items:center;gap:12px;">
+        <h1>❓ Ayuda — Análisis Financiero con IA</h1>
+    </div>
+    <div class="cab-der">
+        <a href="buscador-empresas.html" class="btn-cab">🔍 Buscador</a>
+        <a href="herramienta-analisis-ia.html" class="btn-cab primario">🚀 Ir a la herramienta</a>
+        <a href="index.html" class="btn-cab">🏠 Inicio</a>
+    </div>
+</div>
+
+<div class="contenedor">
+
+<input type="text" class="buscador" id="buscador"
+    placeholder="🔍 Busca lo que necesitas: ISIN, guardar, prompt, buscador, IA, JSON…"
+    oninput="buscar(this.value)">
+<div id="noResultados" class="no-resultados">No se encontraron resultados para «<span id="terminoBuscado"></span>»</div>
+
+<!-- QUÉ ES -->
+<div class="card seccion-ayuda" data-buscar="qué es herramienta descripción propósito inversión IA para quién">
+    <h2>🤖 ¿Qué es esta herramienta y para qué sirve?</h2>
+    <p>Esta herramienta te ayuda a <strong>analizar productos financieros</strong> (acciones, fondos, ETFs, bonos…) usando <strong>inteligencia artificial gratuita</strong>, sin necesidad de saber economía.</p>
+    <p>La idea es sencilla: introduces el código del producto, eliges el tipo de análisis, y la herramienta genera un "prompt" (instrucciones muy detalladas) que puedes pegar en una IA gratuita. La IA te responde y puedes guardar la respuesta aquí.</p>
+    <div class="info azul">
+        <h4>💡 ¿Para quién es?</h4>
+        <ul>
+            <li>Para personas que <strong>no saben de inversión</strong> pero quieren entender un producto antes de invertir</li>
+            <li>Para quienes ya invierten y quieren <strong>análisis rápidos y profesionales</strong> sin pagar asesores</li>
+            <li>Para aprender qué significa cada ratio financiero de forma práctica</li>
+            <li><strong>No hace falta ningún registro, cuenta ni pago</strong> — todo es gratuito y privado</li>
+        </ul>
+    </div>
+    <div class="info naranja">
+        <h4>⚠️ Importante: esto es una ayuda, no un consejo de inversión</h4>
+        <p>Los análisis que genera la IA son orientativos. <strong>No inviertas dinero basándote solo en esta herramienta.</strong> Antes de invertir cantidades importantes consulta con un profesional.</p>
+    </div>
+</div>
+
+<!-- CÓMO USAR -->
+<div class="card seccion-ayuda" data-buscar="cómo usar paso a paso tutorial ISIN ticker prompt copiar pegar IA guardar respuesta">
+    <h2>📋 Cómo usar la herramienta — paso a paso</h2>
+    <div class="paso">
+        <div class="paso-num">1</div>
+        <div class="paso-cuerpo">
+            <h4>Escribe el ISIN o Ticker del producto</h4>
+            <p>Es el código que identifica el producto que quieres analizar.</p>
+            <div class="detalle">
+                <strong>ISIN</strong> — Código de 12 caracteres: <code>IE00B4L5Y983</code> (ETF iShares MSCI World) · <code>ES0113900J37</code> (Santander)<br><br>
+                <strong>Ticker</strong> — Símbolo de bolsa: <code>AAPL</code> (Apple) · <code>SAN.MC</code> (Santander)<br><br>
+                <strong>¿Dónde encuentro el ISIN?</strong> En el extracto de tu banco, en tu broker, o busca en Google «ISIN + nombre del producto».
+            </div>
+        </div>
+    </div>
+    <div class="paso">
+        <div class="paso-num">2</div>
+        <div class="paso-cuerpo">
+            <h4>Elige el tipo de análisis</h4>
+            <p>Hay botones por categorías. Si no sabes por dónde empezar, usa los <span class="badge verde">🟢 Para empezar</span> — están pensados para explicar el producto en lenguaje sencillo.</p>
+        </div>
+    </div>
+    <div class="paso">
+        <div class="paso-num">3</div>
+        <div class="paso-cuerpo">
+            <h4>Copia el prompt generado</h4>
+            <p>Al pulsar un botón de análisis se genera un texto muy detallado. Pulsa <strong>«📋 Copiar prompt»</strong> y el texto se copia automáticamente.</p>
+            <div class="info azul" style="margin-top:10px;">
+                <h4>💡 ¿Qué es un "prompt"?</h4>
+                <p>Es el mensaje que le envías a la IA, con instrucciones específicas para que haga un análisis serio en lenguaje sencillo.</p>
+            </div>
+        </div>
+    </div>
+    <div class="paso">
+        <div class="paso-num">4</div>
+        <div class="paso-cuerpo">
+            <h4>Abre una IA y pega el prompt</h4>
+            <p>Pulsa uno de los botones de IA (Gemini, DeepSeek…) para abrirla en nueva pestaña. Pega con <strong>Ctrl+V</strong> y pulsa Enter.</p>
+            <div class="detalle">
+                <strong>¿Cuál IA usar?</strong> · Con capturas → <strong>Gemini</strong> · Para análisis profundo → <strong>DeepSeek</strong> · Para datos actuales → <strong>Perplexity</strong>
+            </div>
+        </div>
+    </div>
+    <div class="paso">
+        <div class="paso-num">5</div>
+        <div class="paso-cuerpo">
+            <h4>Adjunta una captura si la tienes (recomendado)</h4>
+            <p>Una captura de tu broker o de la ficha del fondo mejora mucho la calidad del análisis. Adjúntala en la IA antes de pulsar Enter.</p>
+        </div>
+    </div>
+    <div class="paso">
+        <div class="paso-num">6</div>
+        <div class="paso-cuerpo">
+            <h4>Lee la respuesta y guárdala</h4>
+            <p>Copia la respuesta de la IA y pégala en la <strong>caja verde «Guarda la respuesta de la IA»</strong>. Pulsa «💾 Guardar este análisis».</p>
+        </div>
+    </div>
+    <div class="paso">
+        <div class="paso-num">7</div>
+        <div class="paso-cuerpo">
+            <h4>Guarda el archivo antes de cerrar</h4>
+            <p>Pulsa <strong>«💾 Guardar análisis»</strong> en la barra superior. Se descarga un archivo JSON con todos tus análisis y resultados del buscador. Guárdalo en tu ordenador.</p>
+            <div class="info naranja" style="margin-top:10px;">
+                <h4>⚠️ No olvides este paso</h4>
+                <p>Si cierras el navegador sin guardar el archivo y limpias el historial, los análisis pueden perderse.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BUSCADOR DE EMPRESAS -->
+<div class="card seccion-ayuda" data-buscar="buscador empresas screener potencial oportunidades invertir buscar criterios PER dividendo crecimiento filtrar rejilla JSON">
+    <h2>🔍 Buscador de Empresas con IA — ¿cómo funciona?</h2>
+    <p>El <strong>Buscador de Empresas</strong> te permite encontrar empresas con potencial de inversión usando IA. Configuras criterios, la IA busca candidatas y las ves en una rejilla interactiva desde la que puedes lanzar análisis directamente.</p>
+    <div class="flujo-buscador">
+        <div class="flujo-paso"><span class="num">1</span> Configura criterios</div>
+        <div class="flujo-flecha">›</div>
+        <div class="flujo-paso"><span class="num">2</span> Genera el prompt</div>
+        <div class="flujo-flecha">›</div>
+        <div class="flujo-paso"><span class="num">3</span> Pégalo en la IA</div>
+        <div class="flujo-flecha">›</div>
+        <div class="flujo-paso"><span class="num">4</span> Pega el JSON</div>
+        <div class="flujo-flecha">›</div>
+        <div class="flujo-paso"><span class="num">5</span> Analiza empresas</div>
+    </div>
+    <div class="paso">
+        <div class="paso-num">1</div>
+        <div class="paso-cuerpo">
+            <h4>Configura los criterios de búsqueda</h4>
+            <p>Activa y ajusta los filtros que te interesan con sliders y selectores:</p>
+            <div class="detalle">
+                <strong>💰 Valoración</strong> — PER máximo y EV/EBITDA máximo<br>
+                <strong>🏦 Solidez financiera</strong> — Deuda/EBITDA máxima, caja neta positiva<br>
+                <strong>💸 Dividendo</strong> — Rentabilidad mínima, que crezca o se mantenga<br>
+                <strong>📈 Crecimiento</strong> — Crecimiento mínimo de ingresos y EBITDA<br><br>
+                También puedes filtrar por zona geográfica, capitalización, sector, perfil de riesgo y horizonte.
+            </div>
+        </div>
+    </div>
+    <div class="paso">
+        <div class="paso-num">2</div>
+        <div class="paso-cuerpo">
+            <h4>Genera el prompt y pégalo en la IA</h4>
+            <p>Pulsa <strong>«✨ Generar prompt de búsqueda»</strong>. El prompt le dice a la IA qué empresas buscar y en qué formato devolver los resultados (JSON estructurado).</p>
+            <div class="info azul" style="margin-top:8px;">
+                <h4>💡 ¿Y si la IA no devuelve el JSON bien?</h4>
+                <p>Usa el botón <strong>«Regenerar con JSON estricto»</strong> para obtener un prompt con instrucciones más estrictas. También puedes pulsar «👀 Ver ejemplo» para ver cómo debe ser la respuesta.</p>
+            </div>
+        </div>
+    </div>
+    <div class="paso">
+        <div class="paso-num">3</div>
+        <div class="paso-cuerpo">
+            <h4>Pega la respuesta y explora la rejilla</h4>
+            <p>Copia toda la respuesta de la IA y pégala en el Paso 2 del buscador. La app extrae automáticamente el JSON aunque venga mezclado con texto.</p>
+            <div class="detalle">
+                <strong>La rejilla interactiva te permite:</strong><br>
+                · Ordenar por cualquier columna (PER, puntuación, dividendo…)<br>
+                · Buscar por nombre, ticker, sector o país<br>
+                · Ver el veredicto con semáforo 🟢/🟡/🔴 de cada empresa<br>
+                · Pulsar <strong>«📊 Analizar»</strong> para ir al análisis completo<br>
+                · Exportar resultados a CSV · Los resultados se guardan automáticamente
+            </div>
+        </div>
+    </div>
+    <div class="info verde">
+        <h4>✅ Integración total con la herramienta principal</h4>
+        <p>Al pulsar «Analizar» en una empresa, se abre la herramienta principal con el ISIN precargado. Los resultados del buscador también se incluyen en el archivo JSON que descargas con «💾 Guardar análisis».</p>
+    </div>
+</div>
+
+<!-- LAS IAs -->
+<div class="card seccion-ayuda" data-buscar="IA inteligencia artificial gemini deepseek chatgpt claude mistral perplexity copilot huggingface gratuita imágenes capturas">
+    <h2>🤖 Las 8 IAs disponibles — cuál usar</h2>
+    <div class="ia-grid">
+        <div class="ia-card ia-gemini"><span class="ia-ico">✨</span><span class="ia-nombre">Gemini</span><span class="ia-tip">Google · Acepta fotos</span></div>
+        <div class="ia-card ia-deepseek"><span class="ia-ico">🐋</span><span class="ia-nombre">DeepSeek</span><span class="ia-tip">Muy bueno · Gratis</span></div>
+        <div class="ia-card ia-chatgpt"><span class="ia-ico">💬</span><span class="ia-nombre">ChatGPT</span><span class="ia-tip">OpenAI · El más conocido</span></div>
+        <div class="ia-card ia-claude"><span class="ia-ico">🤖</span><span class="ia-nombre">Claude</span><span class="ia-tip">Anthropic · Muy preciso</span></div>
+        <div class="ia-card ia-mistral"><span class="ia-ico">🌪️</span><span class="ia-nombre">Mistral</span><span class="ia-tip">Europeo · Rápido</span></div>
+        <div class="ia-card ia-perplexity"><span class="ia-ico">🔎</span><span class="ia-nombre">Perplexity</span><span class="ia-tip">Busca en internet</span></div>
+        <div class="ia-card ia-copilot"><span class="ia-ico">🪟</span><span class="ia-nombre">Copilot</span><span class="ia-tip">Microsoft · Bing</span></div>
+        <div class="ia-card ia-hf"><span class="ia-ico">🤗</span><span class="ia-nombre">HuggingFace</span><span class="ia-tip">Open source</span></div>
+    </div>
+    <div class="tabla-wrap">
+        <table class="tabla">
+            <thead><tr><th>IA</th><th>Lo mejor</th><th>¿Acepta imágenes?</th></tr></thead>
+            <tbody>
+                <tr><td>✨ Gemini</td><td>Acepta fotos/capturas, datos recientes de Google</td><td>✅ Sí (ideal para capturas de broker)</td></tr>
+                <tr><td>🐋 DeepSeek</td><td>Análisis financiero muy detallado, completamente gratis</td><td>❌ No (solo texto)</td></tr>
+                <tr><td>💬 ChatGPT</td><td>El más conocido y versátil</td><td>✅ Solo con Plus (de pago)</td></tr>
+                <tr><td>🤖 Claude</td><td>Muy preciso con documentos largos</td><td>✅ Sí</td></tr>
+                <tr><td>🌪️ Mistral</td><td>Europeo, rápido, respeta privacidad</td><td>❌ No</td></tr>
+                <tr><td>🔎 Perplexity</td><td>Busca en internet en tiempo real, cita fuentes</td><td>✅ Con Pro</td></tr>
+                <tr><td>🪟 Copilot</td><td>Integrado con Bing, datos actuales</td><td>✅ Sí</td></tr>
+                <tr><td>🤗 HuggingFace</td><td>Open source, sin registro</td><td>❌ Depende del modelo</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="info azul" style="margin-top:4px;">
+        <h4>💡 Recomendación para principiantes</h4>
+        <ul>
+            <li><strong>Sin captura:</strong> usa DeepSeek (gratis, muy bueno para finanzas)</li>
+            <li><strong>Con captura del broker:</strong> usa Gemini (gratis y acepta imágenes)</li>
+            <li><strong>Si quieres datos actualizados:</strong> usa Perplexity (busca en internet)</li>
+        </ul>
+    </div>
+</div>
+
+<!-- GUARDAR -->
+<div class="card seccion-ayuda" data-buscar="guardar cargar archivo JSON exportar importar backup seguridad datos perder cerrar navegador">
+    <h2>💾 Guardar y recuperar tus análisis</h2>
+    <div class="info naranja">
+        <h4>⚠️ ¿Por qué es importante guardar el archivo?</h4>
+        <p>Los análisis se guardan en el navegador (localStorage). Pero si <strong>limpias el historial</strong>, <strong>usas otro dispositivo</strong> o <strong>abres incógnito</strong>, esos datos no estarán disponibles. El archivo JSON es tu copia de seguridad permanente.</p>
+    </div>
+    <div class="info verde" style="margin-top:8px;">
+        <h4>✅ El archivo incluye TODO</h4>
+        <p>El archivo JSON que descargas contiene tanto tus <strong>análisis guardados</strong> como los <strong>resultados del buscador de empresas</strong>. Al cargarlo, todo se restaura automáticamente.</p>
+    </div>
+    <h3>Cómo guardar</h3>
+    <p>Pulsa <strong>«💾 Guardar análisis»</strong> en la barra superior. Se descarga el archivo <code>analisis_financiero_DDMMAAAA_HHMM.json</code>. Guárdalo en una carpeta que recuerdes.</p>
+    <h3>Cómo cargar un backup</h3>
+    <ul style="margin-left:18px;font-size:14px;color:var(--texto2);line-height:2;">
+        <li><strong>Desde la pantalla de inicio:</strong> arrastra el archivo o haz clic para seleccionarlo.</li>
+        <li><strong>Desde la herramienta:</strong> pulsa «📂 Cargar análisis» en la barra superior.</li>
+    </ul>
+    <div class="info azul" style="margin-top:14px;">
+        <h4>🔄 Fusión inteligente</h4>
+        <p>Si ya tienes análisis en el navegador y cargas un archivo, los análisis se <strong>fusionan automáticamente</strong> sin duplicados. Nunca perderás análisis al cargar un backup.</p>
+    </div>
+</div>
+
+<!-- 14 ANÁLISIS -->
+<div class="card seccion-ayuda" data-buscar="tipos análisis qué hace cada botón básico valoración deuda múltiplos PER EBITDA fair value infravalorada riesgos macro tipos interés renta fija">
+    <h2>📊 Los 14 tipos de análisis</h2>
+    <div class="grupo-label">🟢 Para empezar</div>
+    <div class="tabla-wrap">
+        <table class="tabla">
+            <thead><tr><th>Análisis</th><th>¿Qué te dice?</th><th>¿Cuándo usarlo?</th></tr></thead>
+            <tbody>
+                <tr><td>🌱 ¿Es buena inversión para mí?</td><td>Explicación sencilla, perfil de riesgo, si es apto para principiantes</td><td>La primera vez que analizas un producto</td></tr>
+                <tr><td>💡 ¿Qué es este producto?</td><td>Tipo de activo, cómo funciona, en qué invierte, cómo se compra</td><td>Cuando alguien te recomienda un fondo y no sabes qué es</td></tr>
+                <tr><td>⚠️ ¿Cuáles son los riesgos?</td><td>Riesgos en lenguaje claro, cuánto podrías perder, qué pasó en crisis</td><td>Antes de invertir una cantidad importante</td></tr>
+                <tr><td>📅 ¿Buen momento para entrar?</td><td>Valoración actual, estrategia recomendada, tres escenarios posibles</td><td>Cuando ya sabes qué es pero dudas si ahora es buen momento</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="grupo-label">📈 Valoración y precio</div>
+    <div class="tabla-wrap">
+        <table class="tabla">
+            <thead><tr><th>Análisis</th><th>¿Qué te dice?</th></tr></thead>
+            <tbody>
+                <tr><td>💰 ¿Está barata o cara?</td><td>PER, EV/EBITDA comparados con su historia y el sector</td></tr>
+                <tr><td>🎯 Fair Value (precio justo)</td><td>Valor real estimado por varios métodos y cuánto puede subir/bajar</td></tr>
+                <tr><td>📊 Análisis de múltiplos</td><td>Todos los ratios de valoración vs histórico y competidores</td></tr>
+                <tr><td>🔍 ¿Está infravalorada?</td><td>Si el mercado no ha visto su valor real — consenso analistas</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="grupo-label">🏦 Salud financiera</div>
+    <div class="tabla-wrap">
+        <table class="tabla">
+            <thead><tr><th>Análisis</th><th>¿Qué te dice?</th></tr></thead>
+            <tbody>
+                <tr><td>📊 Resultados empresariales</td><td>Ventas, EBITDA, beneficio, flujo de caja — últimos 5 años</td></tr>
+                <tr><td>🏦 ¿Cuánta deuda tiene?</td><td>Deuda total, años para pagarla, riesgo de impago</td></tr>
+                <tr><td>💵 ¿Tiene más dinero que deuda?</td><td>Si la empresa tiene caja neta positiva (señal muy buena)</td></tr>
+                <tr><td>📉 ¿Están manipulando las cuentas?</td><td>Señales de alarma contables, calidad del beneficio</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="grupo-label">🌍 Contexto y renta fija</div>
+    <div class="tabla-wrap">
+        <table class="tabla">
+            <thead><tr><th>Análisis</th><th>¿Qué te dice?</th></tr></thead>
+            <tbody>
+                <tr><td>📉 Impacto bajada tipos</td><td>Cómo afectan los tipos de interés. Muy útil para bonos y renta fija.</td></tr>
+                <tr><td>🌍 Contexto macroeconómico</td><td>Cómo afecta inflación, ciclo económico, geopolítica a este producto</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- GLOSARIO -->
+<div class="card seccion-ayuda" data-buscar="glosario términos financieros ISIN ticker PER EBITDA fair value deuda neta caja ETF fondo acción bono renta fija dividendo">
+    <h2>📖 Glosario de términos básicos</h2>
+    <div class="glosario-grid">
+        <div class="glosario-item"><div class="term">ISIN</div><div class="def">Código de 12 caracteres que identifica un fondo, ETF o acción. Como el DNI de un producto financiero.</div></div>
+        <div class="glosario-item"><div class="term">Ticker</div><div class="def">Símbolo corto de bolsa. AAPL = Apple, SAN = Santander. Más fácil de escribir que el ISIN.</div></div>
+        <div class="glosario-item"><div class="term">PER</div><div class="def">Cuántos años de beneficios pagas al precio actual.</div><div class="escala">◎ &lt;15 barata · 15-20 normal · &gt;25 cara</div></div>
+        <div class="glosario-item"><div class="term">EV/EBITDA</div><div class="def">Como el PER pero también cuenta la deuda de la empresa.</div><div class="escala">◎ &lt;8 muy barato · 8-12 normal · &gt;15 caro</div></div>
+        <div class="glosario-item"><div class="term">Fair Value</div><div class="def">El precio "justo" calculado matemáticamente. Si cotiza por debajo, hay margen de subida.</div></div>
+        <div class="glosario-item"><div class="term">Deuda neta</div><div class="def">Deuda total menos el dinero en caja. Si es negativa, tiene más dinero que deudas.</div><div class="escala">◎ Negativa = excelente</div></div>
+        <div class="glosario-item"><div class="term">Deuda/EBITDA</div><div class="def">Cuántos años de beneficios necesita para pagar toda su deuda.</div><div class="escala">◎ &lt;1 excelente · 1-2 bueno · &gt;3 preocupante</div></div>
+        <div class="glosario-item"><div class="term">ETF</div><div class="def">Fondo que cotiza en bolsa. Muy baratos de comisiones. Se compran con un broker.</div></div>
+        <div class="glosario-item"><div class="term">DCA</div><div class="def">Invertir la misma cantidad cada mes. Reduce el riesgo de comprar en el peor momento.</div></div>
+        <div class="glosario-item"><div class="term">ROE</div><div class="def">Cuánto beneficio genera la empresa por cada euro de los accionistas.</div><div class="escala">◎ &gt;15% bueno · &gt;20% excelente</div></div>
+        <div class="glosario-item"><div class="term">Dividendo</div><div class="def">Parte de los beneficios que la empresa reparte a sus accionistas periódicamente.</div></div>
+        <div class="glosario-item"><div class="term">Renta fija / variable</div><div class="def">Renta fija = bonos (interés predecible). Renta variable = bolsa (puede subir mucho o bajar mucho).</div></div>
+    </div>
+</div>
+
+<!-- FAQ -->
+<div class="card seccion-ayuda" data-buscar="preguntas frecuentes FAQ duda gratis privado datos seguro servidor cuenta buscador JSON">
+    <h2>❓ Preguntas frecuentes</h2>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Es gratis esta herramienta? <span class="chev">▼</span></div>
+        <div class="faq-a">Sí, completamente gratis. No necesitas crear ninguna cuenta. Las IAs que puedes usar (Gemini, DeepSeek, ChatGPT básico, etc.) también tienen versiones gratuitas suficientes.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Mis análisis son privados? ¿Se envían a algún servidor? <span class="chev">▼</span></div>
+        <div class="faq-a">Completamente privados. Los análisis se guardan solo en tu navegador. Ningún dato sale de tu ordenador a través de esta herramienta. La única conexión externa es cuando tú abres la IA de terceros.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Por qué el Buscador necesita que copie y pegue el JSON manualmente? <span class="chev">▼</span></div>
+        <div class="faq-a">Porque esta herramienta es 100% local y no tiene servidor propio. Tú haces de puente entre la app y la IA: copias el prompt, lo pegas en la IA, y luego pegas la respuesta de vuelta en el buscador. La app extrae el JSON automáticamente aunque venga mezclado con texto, así que es más sencillo de lo que parece.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">La IA no sabe qué es este ISIN. ¿Qué hago? <span class="chev">▼</span></div>
+        <div class="faq-a">1. Adjunta una captura de la ficha del fondo o producto.<br>
+        2. Añade el nombre al principio del prompt: «ISIN: LU1234567890 (Fondo Mixto del Banco X)».<br>
+        3. Usa Perplexity o Copilot, que buscan en internet.<br>
+        4. Busca en Google el nombre del fondo más «KID» y adjunta ese PDF.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Debo confiar ciegamente en el análisis de la IA? <span class="chev">▼</span></div>
+        <div class="faq-a">No. Los análisis de IA son una ayuda para informarte, no una recomendación definitiva. La IA puede tener datos desactualizados. Para decisiones importantes (más de 10.000€), consulta con un asesor financiero registrado.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Qué hago si pierdo mis análisis? <span class="chev">▼</span></div>
+        <div class="faq-a">Si tienes el archivo JSON guardado, puedes recuperarlos cargándolo desde la pantalla de inicio o desde «📂 Cargar análisis».<br><br>Si no tienes el archivo y limpiaste el navegador, los análisis se habrán perdido. La herramienta te avisa cuando vas a cerrar la página si tienes análisis sin guardar.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Puedo usar esta herramienta en el móvil? <span class="chev">▼</span></div>
+        <div class="faq-a">Sí, está adaptada para móvil. Aunque la experiencia es mejor en ordenador porque los prompts son largos y copiar/pegar entre pestañas es más cómodo en PC.</div>
+    </div>
+</div>
+
+<div class="footer-btns">
+    <a href="buscador-empresas.html" class="btn-cab" style="font-size:14px;padding:13px 24px;">🔍 Ir al Buscador de Empresas</a>
+    <a href="herramienta-analisis-ia.html" class="btn-cab primario" style="font-size:15px;padding:14px 32px;">🚀 Ir a la herramienta principal</a>
+</div>
+
+</div>
+
+<script>
+function toggleFaq(el) {
+    const a = el.nextElementSibling, c = el.querySelector('.chev'), open = a.classList.contains('open');
+    document.querySelectorAll('.faq-a').forEach(x => x.classList.remove('open'));
+    document.querySelectorAll('.chev').forEach(x => x.textContent = '▼');
+    if (!open) { a.classList.add('open'); c.textContent = '▲'; }
+}
+function buscar(term) {
+    const t = term.trim().toLowerCase();
+    const secs = document.querySelectorAll('.seccion-ayuda,.faq-item');
+    let found = false;
+    secs.forEach(s => {
+        const txt = (s.getAttribute('data-buscar')||'') + ' ' + s.innerText.toLowerCase();
+        const ok = !t || txt.includes(t);
+        s.style.display = ok ? '' : 'none';
+        if (ok) found = true;
+    });
+    const nr = document.getElementById('noResultados'), tb = document.getElementById('terminoBuscado');
+    if (nr) nr.style.display = (!found && t) ? 'block' : 'none';
+    if (tb) tb.textContent = term;
+}
+</script>
+</body>
+</html>

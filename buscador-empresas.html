@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Buscador de Empresas con IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --azul:    #4361ee;
+            --morado:  #7209b7;
+            --verde:   #06d6a0;
+            --naranja: #fb8500;
+            --rojo:    #ef233c;
+            --cyan:    #4cc9f0;
+            --oscuro:  #0d0d1a;
+            --card:    #13131f;
+            --borde:   rgba(255,255,255,.08);
+            --texto:   rgba(255,255,255,.85);
+            --texto2:  rgba(255,255,255,.45);
+            --grad:    linear-gradient(135deg,#4361ee,#7209b7);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--oscuro);
+            color: var(--texto);
+            min-height: 100vh;
+        }
+
+        /* ── FONDO ── */
+        body::before {
+            content:'';
+            position: fixed; inset: 0; z-index: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 10% 20%, rgba(67,97,238,.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 90% 80%, rgba(114,9,183,.10) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 50% 50%, rgba(76,201,240,.05) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* ── CABECERA ── */
+        .cabecera {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(13,13,26,.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--borde);
+            padding: 14px 28px;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .cab-izq { display:flex; align-items:center; gap:12px; }
+        .cab-izq h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px; font-weight: 800;
+            background: linear-gradient(135deg,#fff 40%,#a78bfa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .cab-izq h1 small { font-size:12px; opacity:.5; display:block; font-family:'DM Sans',sans-serif; font-weight:400; -webkit-text-fill-color: rgba(255,255,255,.45); }
+        .badge { background: rgba(67,97,238,.2); border:1px solid rgba(67,97,238,.4); color:#a78bfa; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+        .btn-cab {
+            background: rgba(255,255,255,.07); border: 1px solid var(--borde);
+            color: var(--texto2); padding: 8px 16px; border-radius: 8px;
+            cursor: pointer; font-size: 13px; font-weight: 500; transition: all .2s;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-cab:hover { background: rgba(255,255,255,.12); color: var(--texto); }
+
+        /* ── LAYOUT ── */
+        .contenedor { position:relative; z-index:1; max-width:1300px; margin:0 auto; padding:28px 24px 60px; }
+
+        /* ── PASOS / FLUJO ── */
+        .flujo {
+            display: flex; align-items: center; gap: 0;
+            margin-bottom: 32px; overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .paso-item {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; color: var(--texto2);
+            white-space: nowrap; padding: 8px 16px;
+            border-radius: 8px; transition: all .2s; cursor: pointer;
+        }
+        .paso-item.activo { color: white; background: rgba(67,97,238,.2); }
+        .paso-item.completado { color: var(--verde); }
+        .paso-num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 800; flex-shrink: 0;
+        }
+        .paso-item.activo .paso-num { background: var(--azul); border-color: var(--azul); color: white; }
+        .paso-item.completado .paso-num { background: rgba(6,214,160,.2); border-color: var(--verde); color: var(--verde); }
+        .paso-flecha { color: rgba(255,255,255,.15); font-size: 16px; padding: 0 4px; }
+
+        /* ── SECCIONES ── */
+        .seccion { display:none; }
+        .seccion.activa { display:block; animation: fadeIn .4s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--borde);
+            border-radius: 18px; padding: 24px 26px;
+            margin-bottom: 20px;
+        }
+        .card-titulo {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px; font-weight: 800;
+            margin-bottom: 6px; display:flex; align-items:center; gap:8px;
+        }
+        .card-desc { font-size: 13px; color: var(--texto2); line-height: 1.6; margin-bottom: 22px; }
+
+        /* ── GRID CRITERIOS ── */
+        .criterios-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .criterio-item {
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--borde);
+            border-radius: 14px; padding: 18px;
+            transition: border-color .2s;
+        }
+        .criterio-item:hover { border-color: rgba(67,97,238,.3); }
+        .criterio-item.activo { border-color: rgba(67,97,238,.5); background: rgba(67,97,238,.06); }
+
+        .criterio-cab {
+            display:flex; align-items:center; justify-content:space-between;
+            margin-bottom: 12px;
+        }
+        .criterio-nombre {
+            font-size: 13px; font-weight: 600; display:flex; align-items:center; gap:7px;
+        }
+        .criterio-ico { font-size: 18px; }
+
+        /* Toggle switch */
+        .toggle { position:relative; width:36px; height:20px; cursor:pointer; }
+        .toggle input { opacity:0; width:0; height:0; }
+        .toggle-slider {
+            position:absolute; inset:0;
+            background: rgba(255,255,255,.1); border-radius:20px;
+            transition: .2s;
+        }
+        .toggle-slider::before {
+            content:''; position:absolute;
+            width:14px; height:14px; left:3px; top:3px;
+            background:white; border-radius:50%; transition:.2s;
+        }
+        .toggle input:checked + .toggle-slider { background: var(--azul); }
+        .toggle input:checked + .toggle-slider::before { transform:translateX(16px); }
+
+        /* Slider range */
+        .slider-wrap { margin-top:4px; }
+        .slider-labels { display:flex; justify-content:space-between; font-size:11px; color:var(--texto2); margin-bottom:6px; }
+        .slider-val { font-size:13px; font-weight:700; color:var(--azul); text-align:right; margin-bottom:6px; }
+        input[type=range] {
+            width:100%; height:4px; appearance:none;
+            background: rgba(255,255,255,.1); border-radius:4px; outline:none; cursor:pointer;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            appearance:none; width:16px; height:16px;
+            background: var(--azul); border-radius:50%;
+            box-shadow: 0 0 8px rgba(67,97,238,.5);
+        }
+        input[type=range]:disabled { opacity:.3; cursor:default; }
+
+        /* Select */
+        .select-wrap select {
+            width:100%; padding:9px 12px;
+            background: rgba(255,255,255,.06); border: 1px solid var(--borde);
+            border-radius:8px; color:var(--texto); font-size:13px;
+            appearance:none; cursor:pointer; outline:none;
+            transition: border-color .2s;
+        }
+        .select-wrap select:hover { border-color: rgba(67,97,238,.4); }
+        .select-wrap select option { background: #1a1a2e; }
+        .select-wrap select:disabled { opacity:.3; cursor:default; }
+
+        /* ── FILTROS ADICIONALES ── */
+        .filtros-extra {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px; margin-top: 20px;
+        }
+        .filtro-grupo label {
+            font-size: 12px; font-weight: 600; color: var(--texto2);
+            text-transform: uppercase; letter-spacing: .6px;
+            display: block; margin-bottom: 7px;
+        }
+
+        /* ── BOTÓN GENERAR ── */
+        .btn-generar {
+            width:100%; padding:16px;
+            background: var(--grad); color:white; border:none;
+            border-radius:12px; font-family:'Syne',sans-serif;
+            font-size:16px; font-weight:800; cursor:pointer;
+            transition:all .25s; display:flex; align-items:center; justify-content:center; gap:10px;
+            box-shadow: 0 8px 32px rgba(67,97,238,.35);
+            position:relative; overflow:hidden; margin-top:8px;
+        }
+        .btn-generar::before {
+            content:''; position:absolute; inset:0;
+            background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);
+            opacity:0; transition:.2s;
+        }
+        .btn-generar:hover { transform:translateY(-2px); box-shadow:0 14px 40px rgba(67,97,238,.5); }
+        .btn-generar:hover::before { opacity:1; }
+
+        /* ── ÁREA PROMPT ── */
+        .prompt-area {
+            background: rgba(255,255,255,.02);
+            border: 1px solid rgba(67,97,238,.25);
+            border-radius: 14px; padding: 20px;
+        }
+        .prompt-header {
+            display:flex; align-items:center; justify-content:space-between;
+            margin-bottom:14px; flex-wrap:wrap; gap:10px;
+        }
+        .prompt-header h3 { font-family:'Syne',sans-serif; font-size:15px; font-weight:800; }
+        .prompt-acciones { display:flex; gap:8px; flex-wrap:wrap; }
+
+        #promptTexto {
+            width:100%; min-height:180px; padding:14px;
+            background: rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.08);
+            border-radius:10px; color:#c8d6ff; font-family:monospace;
+            font-size:12.5px; line-height:1.7; resize:vertical; outline:none;
+            transition: border-color .2s;
+        }
+        #promptTexto:focus { border-color: rgba(67,97,238,.5); }
+
+        /* IAs grid */
+        .ia-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:16px; }
+        .btn-ia {
+            padding:10px 6px; border:none; border-radius:10px; cursor:pointer;
+            font-weight:700; color:white; font-size:11px; text-align:center;
+            transition:all .2s; box-shadow:0 3px 12px rgba(0,0,0,.3);
+            display:flex; flex-direction:column; align-items:center; gap:4px;
+        }
+        .btn-ia:hover { transform:translateY(-2px); }
+        .btn-ia .ia-ico { font-size:18px; }
+        .btn-ia .ia-plan { font-size:9px; opacity:.75; }
+        .ia-gemini    { background:linear-gradient(135deg,#4285F4,#34A853); }
+        .ia-deepseek  { background:linear-gradient(135deg,#1a1a2e,#30363d); }
+        .ia-chatgpt   { background:linear-gradient(135deg,#10a37f,#1a7f64); }
+        .ia-claude    { background:linear-gradient(135deg,#cc785c,#a0522d); }
+        .ia-mistral   { background:linear-gradient(135deg,#7c3aed,#5b21b6); }
+        .ia-perplexity{ background:linear-gradient(135deg,#e85d04,#dc2f02); }
+        .ia-copilot   { background:linear-gradient(135deg,#0066ff,#0044cc); }
+        .ia-hf        { background:linear-gradient(135deg,#059669,#047857); }
+
+        .btn-accion {
+            padding:9px 16px; border:none; border-radius:8px; cursor:pointer;
+            font-size:13px; font-weight:600; transition:all .2s;
+            display:flex; align-items:center; gap:6px;
+        }
+        .btn-copiar { background:var(--azul); color:white; }
+        .btn-copiar:hover { background:#3451d1; }
+        .btn-secundario-sm { background:rgba(255,255,255,.07); color:var(--texto); border:1px solid var(--borde); }
+        .btn-secundario-sm:hover { background:rgba(255,255,255,.12); }
+
+        /* ── SECCIÓN 2: PEGAR JSON ── */
+        .instrucciones {
+            background: rgba(6,214,160,.06);
+            border: 1px solid rgba(6,214,160,.2);
+            border-radius: 12px; padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+        .instrucciones h4 { font-size:14px; color:var(--verde); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+        .instrucciones ol { margin-left:18px; font-size:13px; color:rgba(255,255,255,.6); line-height:2; }
+        .instrucciones code {
+            background:rgba(255,255,255,.08); padding:2px 7px;
+            border-radius:4px; font-family:monospace; font-size:12px;
+            color:#c8d6ff;
+        }
+
+        .json-area {
+            width:100%; min-height:160px; padding:14px;
+            background: rgba(0,0,0,.3); border:2px solid rgba(255,255,255,.08);
+            border-radius:12px; color:#c8d6ff; font-family:monospace;
+            font-size:13px; line-height:1.6; resize:vertical; outline:none;
+            transition: border-color .2s;
+        }
+        .json-area:focus { border-color: rgba(67,97,238,.5); }
+        .json-area.error { border-color: rgba(239,35,60,.5); }
+        .json-area.ok    { border-color: rgba(6,214,160,.5); }
+
+        .json-acciones { display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+
+        #msgError {
+            display:none; margin-top:10px; padding:12px 16px;
+            background:rgba(239,35,60,.1); border:1px solid rgba(239,35,60,.3);
+            border-radius:8px; font-size:13px; color:#ef233c;
+        }
+
+        /* ── SECCIÓN 3: REJILLA ── */
+        .rejilla-cabecera {
+            display:flex; align-items:center; justify-content:space-between;
+            margin-bottom:20px; flex-wrap:wrap; gap:12px;
+        }
+        .rejilla-info { font-size:13px; color:var(--texto2); }
+        .rejilla-info strong { color:var(--texto); }
+
+        .rejilla-acciones { display:flex; gap:8px; flex-wrap:wrap; }
+
+        .buscador-rejilla {
+            padding:10px 14px; background:rgba(255,255,255,.06);
+            border:1px solid var(--borde); border-radius:8px;
+            color:var(--texto); font-size:13px; outline:none; width:200px;
+            transition: border-color .2s;
+        }
+        .buscador-rejilla:focus { border-color:rgba(67,97,238,.5); }
+
+        /* Tabla */
+        .tabla-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--borde); }
+        table { width:100%; border-collapse:collapse; font-size:13px; }
+        thead { background: rgba(255,255,255,.04); }
+        th {
+            padding:12px 16px; text-align:left;
+            font-size:11px; font-weight:700; text-transform:uppercase;
+            letter-spacing:.6px; color:var(--texto2); white-space:nowrap;
+            cursor:pointer; user-select:none; transition: color .2s;
+            border-bottom: 1px solid var(--borde);
+        }
+        th:hover { color:var(--texto); }
+        th .sort-ico { margin-left:4px; opacity:.4; font-size:10px; }
+        th.sorted .sort-ico { opacity:1; color:var(--azul); }
+
+        td {
+            padding:13px 16px; border-bottom:1px solid rgba(255,255,255,.04);
+            vertical-align:middle;
+        }
+        tr:last-child td { border-bottom:none; }
+        tr:hover td { background:rgba(255,255,255,.02); }
+
+        .td-empresa { min-width:180px; }
+        .empresa-nombre { font-weight:600; color:var(--texto); margin-bottom:2px; }
+        .empresa-ticker { font-size:11px; color:var(--azul); font-weight:700; font-family:monospace; }
+        .empresa-isin { font-size:10px; color:var(--texto2); font-family:monospace; }
+
+        .td-sector { min-width:130px; }
+        .sector-tag {
+            display:inline-block; padding:3px 10px;
+            border-radius:20px; font-size:11px; font-weight:600;
+            background:rgba(255,255,255,.07); color:rgba(255,255,255,.6);
+        }
+        .pais-tag { font-size:11px; color:var(--texto2); margin-top:3px; }
+
+        .td-ratio { text-align:center; min-width:80px; }
+        .ratio-val { font-weight:700; font-family:monospace; }
+        .ratio-val.bueno  { color:var(--verde); }
+        .ratio-val.normal { color:var(--naranja); }
+        .ratio-val.malo   { color:var(--rojo); }
+        .ratio-label { font-size:10px; color:var(--texto2); margin-top:1px; }
+
+        .td-puntuacion { text-align:center; min-width:110px; }
+        .puntuacion-bar {
+            height:6px; border-radius:3px; margin:4px auto;
+            background:rgba(255,255,255,.08); max-width:80px; overflow:hidden;
+        }
+        .puntuacion-fill { height:100%; border-radius:3px; transition: width .5s ease; }
+        .puntuacion-num { font-family:'Syne',sans-serif; font-size:15px; font-weight:800; }
+        .puntuacion-num.alta   { color:var(--verde); }
+        .puntuacion-num.media  { color:var(--naranja); }
+        .puntuacion-num.baja   { color:var(--rojo); }
+
+        .td-veredicto { min-width:120px; }
+        .veredicto-badge {
+            display:inline-flex; align-items:center; gap:5px;
+            padding:5px 12px; border-radius:20px;
+            font-size:12px; font-weight:700; white-space:nowrap;
+        }
+        .veredicto-badge.comprar  { background:rgba(6,214,160,.15); color:var(--verde); border:1px solid rgba(6,214,160,.3); }
+        .veredicto-badge.vigilar  { background:rgba(251,133,0,.12); color:var(--naranja); border:1px solid rgba(251,133,0,.3); }
+        .veredicto-badge.evitar   { background:rgba(239,35,60,.12); color:var(--rojo); border:1px solid rgba(239,35,60,.3); }
+        .veredicto-badge.estudiar { background:rgba(76,201,240,.12); color:var(--cyan); border:1px solid rgba(76,201,240,.3); }
+
+        .td-acciones { min-width:100px; text-align:center; }
+        .btn-analizar {
+            padding:7px 14px; border:none; border-radius:8px;
+            background:var(--grad); color:white; font-size:12px; font-weight:700;
+            cursor:pointer; transition:all .2s; white-space:nowrap;
+        }
+        .btn-analizar:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(67,97,238,.4); }
+
+        /* Empty state */
+        .empty-state {
+            text-align:center; padding:60px 20px;
+            color:var(--texto2);
+        }
+        .empty-state .ico { font-size:56px; display:block; margin-bottom:16px; opacity:.4; }
+        .empty-state h3 { font-family:'Syne',sans-serif; font-size:18px; margin-bottom:8px; color:rgba(255,255,255,.3); }
+        .empty-state p { font-size:13px; line-height:1.6; }
+
+        /* ── NOTA RAZÓN ── */
+        .nota-razon {
+            background:rgba(255,255,255,.02); border:1px solid var(--borde);
+            border-radius:10px; padding:12px 16px;
+            font-size:12px; color:var(--texto2); line-height:1.65;
+            max-width:340px; cursor:pointer;
+        }
+        .nota-razon summary { font-weight:600; color:rgba(255,255,255,.5); cursor:pointer; list-style:none; display:flex; align-items:center; gap:6px; }
+        .nota-razon summary::before { content:'💬'; }
+
+        /* ── TOAST ── */
+        #toast {
+            position:fixed; bottom:24px; right:24px;
+            background:rgba(13,13,26,.95); border:1px solid rgba(255,255,255,.1);
+            backdrop-filter:blur(16px); color:white;
+            padding:13px 20px; border-radius:12px; font-size:13px; font-weight:600;
+            z-index:9999; display:none; box-shadow:0 8px 32px rgba(0,0,0,.4);
+        }
+        #toast.ok    { border-color:rgba(6,214,160,.4); color:var(--verde); }
+        #toast.error { border-color:rgba(239,35,60,.4); color:var(--rojo); }
+        #toast.info  { border-color:rgba(67,97,238,.4); color:#a78bfa; }
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:768px) {
+            .criterios-grid { grid-template-columns:1fr; }
+            .ia-grid { grid-template-columns:repeat(4,1fr); }
+            .contenedor { padding:20px 14px 48px; }
+        }
+        @media(max-width:480px) {
+            .ia-grid { grid-template-columns:repeat(2,1fr); }
+            .cabecera { padding:12px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- CABECERA -->
+<div class="cabecera">
+    <div class="cab-izq">
+        <h1>🔍 Buscador de Empresas
+            <small>Encuentra oportunidades con IA</small>
+        </h1>
+        <span class="badge">BETA</span>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <a href="herramienta-analisis-ia.html" class="btn-cab">📊 Herramienta principal</a>
+        <a href="index.html" class="btn-cab">🏠 Inicio</a>
+    </div>
+</div>
+
+<div class="contenedor">
+
+    <!-- FLUJO DE PASOS -->
+    <div class="flujo">
+        <div class="paso-item activo" id="paso-btn-1" onclick="irPaso(1)">
+            <span class="paso-num">1</span> Configurar criterios
+        </div>
+        <span class="paso-flecha">›</span>
+        <div class="paso-item" id="paso-btn-2" onclick="irPaso(2)">
+            <span class="paso-num">2</span> Pegar respuesta IA
+        </div>
+        <span class="paso-flecha">›</span>
+        <div class="paso-item" id="paso-btn-3" onclick="irPaso(3)">
+            <span class="paso-num">3</span> Ver y analizar empresas
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PASO 1 — CONFIGURAR CRITERIOS
+    ══════════════════════════════════════════ -->
+    <div class="seccion activa" id="sec-1">
+
+        <div class="card">
+            <div class="card-titulo">⚙️ Configura tu búsqueda</div>
+            <div class="card-desc">Selecciona los criterios que quieres que la IA use para buscar empresas con potencial. Activa solo los que te interesen — cuantos más actives, más específica será la búsqueda.</div>
+
+            <div class="criterios-grid" id="criteriosGrid">
+
+                <!-- VALORACIÓN -->
+                <div class="criterio-item activo" id="crit-valoracion">
+                    <div class="criterio-cab">
+                        <div class="criterio-nombre"><span class="criterio-ico">💰</span> Valoración atractiva</div>
+                        <label class="toggle"><input type="checkbox" id="chk-valoracion" checked onchange="toggleCriterio('valoracion')"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="slider-wrap" id="wrap-valoracion">
+                        <div class="slider-labels"><span>PER máximo</span><span>muy barato ← → caro</span></div>
+                        <div class="slider-val" id="val-per">PER ≤ <strong>15</strong></div>
+                        <input type="range" id="sl-per" min="5" max="40" value="15" oninput="updateSlider('per',this.value,'PER ≤ ')">
+                        <div style="margin-top:12px;" class="slider-labels"><span>EV/EBITDA máximo</span></div>
+                        <div class="slider-val" id="val-evebitda">EV/EBITDA ≤ <strong>10</strong></div>
+                        <input type="range" id="sl-evebitda" min="3" max="25" value="10" oninput="updateSlider('evebitda',this.value,'EV/EBITDA ≤ ')">
+                    </div>
+                </div>
+
+                <!-- SOLIDEZ FINANCIERA -->
+                <div class="criterio-item activo" id="crit-solidez">
+                    <div class="criterio-cab">
+                        <div class="criterio-nombre"><span class="criterio-ico">🏦</span> Solidez financiera</div>
+                        <label class="toggle"><input type="checkbox" id="chk-solidez" checked onchange="toggleCriterio('solidez')"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="slider-wrap" id="wrap-solidez">
+                        <div class="slider-labels"><span>Deuda neta / EBITDA máxima</span></div>
+                        <div class="slider-val" id="val-deuda">Deuda/EBITDA ≤ <strong>2x</strong></div>
+                        <input type="range" id="sl-deuda" min="0" max="5" step="0.5" value="2" oninput="updateSlider('deuda',this.value,'Deuda/EBITDA ≤ ','x')">
+                        <div style="margin-top:14px;">
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="chk-cajaneta" style="accent-color:var(--azul);width:16px;height:16px;">
+                                <span>Preferir empresas con caja neta positiva ✅</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIVIDENDO -->
+                <div class="criterio-item activo" id="crit-dividendo">
+                    <div class="criterio-cab">
+                        <div class="criterio-nombre"><span class="criterio-ico">💸</span> Dividendo</div>
+                        <label class="toggle"><input type="checkbox" id="chk-dividendo" checked onchange="toggleCriterio('dividendo')"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="slider-wrap" id="wrap-dividendo">
+                        <div class="slider-labels"><span>Rentabilidad por dividendo mínima</span></div>
+                        <div class="slider-val" id="val-div">Dividendo ≥ <strong>2%</strong></div>
+                        <input type="range" id="sl-div" min="0" max="10" step="0.5" value="2" oninput="updateSlider('div',this.value,'Dividendo ≥ ','%')">
+                        <div style="margin-top:14px;">
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="chk-divcrece" style="accent-color:var(--azul);width:16px;height:16px;" checked>
+                                <span>Solo dividendos que crezcan o se mantengan</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CRECIMIENTO -->
+                <div class="criterio-item activo" id="crit-crecimiento">
+                    <div class="criterio-cab">
+                        <div class="criterio-nombre"><span class="criterio-ico">📈</span> Crecimiento</div>
+                        <label class="toggle"><input type="checkbox" id="chk-crecimiento" checked onchange="toggleCriterio('crecimiento')"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="slider-wrap" id="wrap-crecimiento">
+                        <div class="slider-labels"><span>Crecimiento ingresos mínimo (anual)</span></div>
+                        <div class="slider-val" id="val-crec">Ingresos creciendo ≥ <strong>5%</strong>/año</div>
+                        <input type="range" id="sl-crec" min="0" max="30" value="5" oninput="updateSlider('crec',this.value,'Ingresos creciendo ≥ ','%/año')">
+                        <div style="margin-top:12px;" class="slider-labels"><span>Crecimiento EBITDA mínimo (anual)</span></div>
+                        <div class="slider-val" id="val-crecebitda">EBITDA creciendo ≥ <strong>5%</strong>/año</div>
+                        <input type="range" id="sl-crecebitda" min="0" max="30" value="5" oninput="updateSlider('crecebitda',this.value,'EBITDA creciendo ≥ ','%/año')">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FILTROS ADICIONALES -->
+        <div class="card">
+            <div class="card-titulo">🌍 Filtros adicionales</div>
+            <div class="filtros-extra">
+                <div class="filtro-grupo">
+                    <label>Zona geográfica</label>
+                    <div class="select-wrap">
+                        <select id="sel-zona">
+                            <option value="global">🌍 Global (todos los mercados)</option>
+                            <option value="europa">🇪🇺 Europa</option>
+                            <option value="usa">🇺🇸 EE.UU. y Canadá</option>
+                            <option value="asiapacifico">🌏 Asia-Pacífico</option>
+                            <option value="emergentes">📊 Mercados emergentes</option>
+                            <option value="ibex">🇪🇸 España (IBEX + BME)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filtro-grupo">
+                    <label>Capitalización bursátil</label>
+                    <div class="select-wrap">
+                        <select id="sel-cap">
+                            <option value="todas">📊 Todas (small + mid + large)</option>
+                            <option value="large">🏢 Large Cap (&gt;10.000M€)</option>
+                            <option value="mid">🏬 Mid Cap (1.000-10.000M€)</option>
+                            <option value="small">🏪 Small Cap (50-1.000M€)</option>
+                            <option value="largeMid">🏢 Large + Mid Cap</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filtro-grupo">
+                    <label>Sector</label>
+                    <div class="select-wrap">
+                        <select id="sel-sector">
+                            <option value="todos">🌐 Todos los sectores</option>
+                            <option value="tecnologia">💻 Tecnología</option>
+                            <option value="salud">🏥 Salud y Farmacia</option>
+                            <option value="finanzas">🏦 Finanzas y Bancos</option>
+                            <option value="consumo">🛒 Consumo</option>
+                            <option value="energia">⚡ Energía</option>
+                            <option value="inmobiliario">🏠 Inmobiliario (REITs)</option>
+                            <option value="industriales">🏭 Industriales</option>
+                            <option value="utilities">💡 Utilities</option>
+                            <option value="materiales">⚗️ Materiales</option>
+                            <option value="telecomunicaciones">📡 Telecomunicaciones</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filtro-grupo">
+                    <label>Nº de empresas a buscar</label>
+                    <div class="select-wrap">
+                        <select id="sel-num">
+                            <option value="5">5 empresas</option>
+                            <option value="10" selected>10 empresas</option>
+                            <option value="15">15 empresas</option>
+                            <option value="20">20 empresas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filtro-grupo">
+                    <label>Perfil de riesgo</label>
+                    <div class="select-wrap">
+                        <select id="sel-riesgo">
+                            <option value="conservador">🟢 Conservador (riesgo bajo)</option>
+                            <option value="moderado" selected>🟡 Moderado (riesgo medio)</option>
+                            <option value="agresivo">🔴 Agresivo (mayor potencial)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filtro-grupo">
+                    <label>Horizonte de inversión</label>
+                    <div class="select-wrap">
+                        <select id="sel-horizonte">
+                            <option value="corto">⚡ Corto plazo (6-12 meses)</option>
+                            <option value="medio" selected>📅 Medio plazo (1-3 años)</option>
+                            <option value="largo">🌳 Largo plazo (3-10 años)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-generar" onclick="generarPromptScreener()">
+            ✨ Generar prompt de búsqueda
+        </button>
+
+        <!-- PROMPT GENERADO -->
+        <div class="card" id="secPrompt" style="display:none;margin-top:20px;">
+            <div class="prompt-area">
+                <div class="prompt-header">
+                    <h3>📋 Prompt listo — cópialo en tu IA favorita</h3>
+                    <div class="prompt-acciones">
+                        <button class="btn-accion btn-copiar" onclick="copiarPrompt()">📋 Copiar</button>
+                        <button class="btn-accion btn-secundario-sm" onclick="irPaso(2)">Siguiente → Pegar respuesta</button>
+                    </div>
+                </div>
+                <textarea id="promptTexto" readonly></textarea>
+                <div class="ia-grid">
+                    <button class="btn-ia ia-gemini"    onclick="abrirIA('https://gemini.google.com')"><span class="ia-ico">✨</span>Gemini<span class="ia-plan">Gratuito</span></button>
+                    <button class="btn-ia ia-deepseek"  onclick="abrirIA('https://chat.deepseek.com')"><span class="ia-ico">🐋</span>DeepSeek<span class="ia-plan">Gratuito</span></button>
+                    <button class="btn-ia ia-chatgpt"   onclick="abrirIA('https://chat.openai.com')"><span class="ia-ico">🤖</span>ChatGPT<span class="ia-plan">Gratis/Plus</span></button>
+                    <button class="btn-ia ia-claude"    onclick="abrirIA('https://claude.ai')"><span class="ia-ico">🧠</span>Claude<span class="ia-plan">Gratis/Pro</span></button>
+                    <button class="btn-ia ia-mistral"   onclick="abrirIA('https://chat.mistral.ai')"><span class="ia-ico">💫</span>Mistral<span class="ia-plan">Gratuito</span></button>
+                    <button class="btn-ia ia-perplexity" onclick="abrirIA('https://www.perplexity.ai')"><span class="ia-ico">🔍</span>Perplexity<span class="ia-plan">Gratuito</span></button>
+                    <button class="btn-ia ia-copilot"   onclick="abrirIA('https://copilot.microsoft.com')"><span class="ia-ico">🪟</span>Copilot<span class="ia-plan">Gratuito</span></button>
+                    <button class="btn-ia ia-hf"        onclick="abrirIA('https://huggingface.co/chat')"><span class="ia-ico">🤗</span>HuggingFace<span class="ia-plan">Gratuito</span></button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /sec-1 -->
+
+    <!-- ══════════════════════════════════════════
+         PASO 2 — PEGAR JSON
+    ══════════════════════════════════════════ -->
+    <div class="seccion" id="sec-2">
+
+        <div class="instrucciones">
+            <h4>📖 ¿Cómo funciona?</h4>
+            <ol>
+                <li>Copia el prompt del paso anterior y pégalo en tu IA favorita (Gemini, ChatGPT, Claude…)</li>
+                <li>La IA te devolverá una respuesta. Copia <strong>todo el texto</strong> de la respuesta</li>
+                <li>Pégala aquí abajo — la app extraerá automáticamente el JSON con las empresas</li>
+                <li>Si la IA no devuelve un JSON válido, pulsa <code>Regenerar con JSON estricto</code></li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <div class="card-titulo">📥 Pega aquí la respuesta de la IA</div>
+            <div class="card-desc">Puedes pegar toda la respuesta completa (texto + JSON). La app encontrará el bloque JSON automáticamente.</div>
+
+            <textarea class="json-area" id="jsonInput" placeholder='Pega aquí la respuesta completa de la IA...
+
+La app buscará automáticamente un bloque JSON como este:
+[
+  {
+    "nombre": "Empresa Ejemplo",
+    "ticker": "EJM",
+    "isin": "ES0000000000",
+    "pais": "España",
+    "sector": "Tecnología",
+    "per": 12.5,
+    "ev_ebitda": 8.2,
+    "deuda_ebitda": 1.1,
+    "dividendo_pct": 3.2,
+    "crecimiento_ingresos": 8.5,
+    "puntuacion": 82,
+    "veredicto": "COMPRAR",
+    "razon": "Empresa bien valorada con sólido balance y dividendo creciente."
+  }
+]'></textarea>
+
+            <div id="msgError"></div>
+
+            <div class="json-acciones">
+                <button class="btn-accion btn-copiar" onclick="procesarJSON()">🔍 Procesar y ver empresas</button>
+                <button class="btn-accion btn-secundario-sm" onclick="irPaso(1)">← Volver a criterios</button>
+                <button class="btn-accion btn-secundario-sm" onclick="regenerarPromptEstricto()">🔄 Regenerar con JSON estricto</button>
+                <button class="btn-accion btn-secundario-sm" onclick="cargarEjemplo()">👀 Ver ejemplo</button>
+            </div>
+        </div>
+
+    </div><!-- /sec-2 -->
+
+    <!-- ══════════════════════════════════════════
+         PASO 3 — REJILLA
+    ══════════════════════════════════════════ -->
+    <div class="seccion" id="sec-3">
+
+        <div class="rejilla-cabecera">
+            <div>
+                <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px;">📊 Empresas encontradas</div>
+                <div class="rejilla-info" id="rejillaInfo">—</div>
+            </div>
+            <div class="rejilla-acciones">
+                <input type="text" class="buscador-rejilla" id="buscadorRejilla" placeholder="🔎 Buscar empresa..." oninput="filtrarRejilla(this.value)">
+                <button class="btn-accion btn-secundario-sm" onclick="exportarCSV()">⬇️ Exportar CSV</button>
+                <button class="btn-accion btn-secundario-sm" onclick="irPaso(1)">← Nueva búsqueda</button>
+                <button class="btn-accion btn-secundario-sm" onclick="limpiarResultados()" style="color:var(--rojo);border-color:rgba(239,35,60,.3);">🗑️ Limpiar</button>
+            </div>
+        </div>
+
+        <div class="tabla-wrap">
+            <table id="tablaEmpresas">
+                <thead>
+                    <tr>
+                        <th onclick="ordenarPor('nombre')">Empresa <span class="sort-ico">↕</span></th>
+                        <th onclick="ordenarPor('sector')">Sector / País <span class="sort-ico">↕</span></th>
+                        <th class="td-ratio" onclick="ordenarPor('per')">PER <span class="sort-ico">↕</span></th>
+                        <th class="td-ratio" onclick="ordenarPor('ev_ebitda')">EV/<br>EBITDA <span class="sort-ico">↕</span></th>
+                        <th class="td-ratio" onclick="ordenarPor('deuda_ebitda')">Deuda/<br>EBITDA <span class="sort-ico">↕</span></th>
+                        <th class="td-ratio" onclick="ordenarPor('dividendo_pct')">Div. <span class="sort-ico">↕</span></th>
+                        <th class="td-ratio" onclick="ordenarPor('crecimiento_ingresos')">Crec. <span class="sort-ico">↕</span></th>
+                        <th class="td-puntuacion" onclick="ordenarPor('puntuacion')">Puntuación <span class="sort-ico">↕</span></th>
+                        <th class="td-veredicto" onclick="ordenarPor('veredicto')">Veredicto <span class="sort-ico">↕</span></th>
+                        <th class="td-acciones">Analizar</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBody">
+                    <tr>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <span class="ico">🔍</span>
+                                <h3>Todavía no hay empresas</h3>
+                                <p>Configura los criterios en el Paso 1, genera el prompt,<br>pégalo en una IA y pega la respuesta en el Paso 2.</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Razones expandibles -->
+        <div id="secRazones" style="display:none;margin-top:20px;">
+            <div class="card">
+                <div class="card-titulo">💬 Por qué la IA las recomienda</div>
+                <div class="card-desc">Resumen del razonamiento de la IA para cada empresa seleccionada.</div>
+                <div id="listaRazones" style="display:flex;flex-direction:column;gap:10px;"></div>
+            </div>
+        </div>
+
+    </div><!-- /sec-3 -->
+
+</div><!-- /contenedor -->
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  PERSISTENCIA SCREENER
+// ══════════════════════════════════════════════════════
+const SCREENER_KEY = 'screenerEmpresasIA_v1';
+
+function guardarScreener() {
+    try { localStorage.setItem(SCREENER_KEY, JSON.stringify(empresasData)); } catch(e) {}
+}
+function cargarScreener() {
+    try {
+        const d = localStorage.getItem(SCREENER_KEY);
+        return d ? JSON.parse(d) : [];
+    } catch(e) { return []; }
+}
+
+// ══════════════════════════════════════════════════════
+//  ESTADO GLOBAL
+// ══════════════════════════════════════════════════════
+let empresasData = cargarScreener();
+let ordenActual  = { campo: 'puntuacion', asc: false };
+let criteriosConfig = {};
+
+// ══════════════════════════════════════════════════════
+//  NAVEGACIÓN POR PASOS
+// ══════════════════════════════════════════════════════
+function irPaso(n) {
+    document.querySelectorAll('.seccion').forEach((s, i) => {
+        s.classList.toggle('activa', i + 1 === n);
+    });
+    document.querySelectorAll('.paso-item').forEach((p, i) => {
+        p.classList.remove('activo', 'completado');
+        if (i + 1 === n)  p.classList.add('activo');
+        if (i + 1 < n)    p.classList.add('completado');
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════════════
+//  SLIDERS
+// ══════════════════════════════════════════════════════
+function updateSlider(id, val, prefix, suffix = '') {
+    const num = parseFloat(val);
+    document.getElementById('val-' + id).innerHTML =
+        `${prefix}<strong>${num}${suffix}</strong>`;
+}
+
+function toggleCriterio(id) {
+    const chk  = document.getElementById('chk-' + id);
+    const item = document.getElementById('crit-' + id);
+    const wrap = document.getElementById('wrap-' + id);
+    item.classList.toggle('activo', chk.checked);
+    if (wrap) {
+        wrap.querySelectorAll('input[type=range], select').forEach(el => el.disabled = !chk.checked);
+    }
+}
+
+// ══════════════════════════════════════════════════════
+//  GENERAR PROMPT
+// ══════════════════════════════════════════════════════
+function generarPromptScreener() {
+    const cfg = recogerConfig();
+    criteriosConfig = cfg;
+
+    const zonas = { global:'cualquier mercado del mundo', europa:'mercados europeos', usa:'EE.UU. y Canadá', asiapacifico:'Asia-Pacífico', emergentes:'mercados emergentes', ibex:'España (IBEX 35 y BME Growth)' };
+    const caps  = { todas:'cualquier tamaño (small, mid y large cap)', large:'solo large cap (capitalización >10.000M€)', mid:'solo mid cap (1.000-10.000M€)', small:'solo small cap (50-1.000M€)', largeMid:'large cap y mid cap' };
+    const sectores = { todos:'cualquier sector', tecnologia:'tecnología', salud:'salud y farmacia', finanzas:'finanzas y bancos', consumo:'consumo', energia:'energía', inmobiliario:'inmobiliario (REITs)', industriales:'industriales', utilities:'utilities', materiales:'materiales', telecomunicaciones:'telecomunicaciones' };
+    const riesgos = { conservador:'perfil conservador (prioriza estabilidad y poca volatilidad)', moderado:'perfil moderado (equilibrio entre rentabilidad y riesgo)', agresivo:'perfil agresivo (acepta mayor volatilidad a cambio de más potencial)' };
+    const horizontes = { corto:'corto plazo (6-12 meses)', medio:'medio plazo (1-3 años)', largo:'largo plazo (3-10 años)' };
+
+    let criteriosTexto = [];
+    if (cfg.valoracion)   criteriosTexto.push(`• Valoración atractiva: PER ≤ ${cfg.per} y EV/EBITDA ≤ ${cfg.evebitda}`);
+    if (cfg.solidez)      criteriosTexto.push(`• Solidez financiera: Deuda Neta/EBITDA ≤ ${cfg.deuda}x${cfg.cajaneta ? ' (preferir caja neta positiva)' : ''}`);
+    if (cfg.dividendo)    criteriosTexto.push(`• Dividendo: rentabilidad ≥ ${cfg.div}%${cfg.divcrece ? ', que crezca o se mantenga' : ''}`);
+    if (cfg.crecimiento)  criteriosTexto.push(`• Crecimiento: ingresos creciendo ≥ ${cfg.crec}%/año y EBITDA ≥ ${cfg.crecebitda}%/año`);
+
+    const prompt = `🔍 BÚSQUEDA DE EMPRESAS CON POTENCIAL — SCREENER CON IA
+Fecha: ${new Date().toLocaleDateString('es-ES')}
+════════════════════════════════════════════════════════════
+
+INSTRUCCIONES OBLIGATORIAS:
+
+Eres un analista financiero experto. Busca exactamente ${cfg.num} empresas que cumplan los criterios que te indico a continuación. Después devuelve los resultados ÚNICAMENTE en formato JSON válido, sin texto adicional antes ni después del JSON.
+
+CRITERIOS DE BÚSQUEDA:
+${criteriosTexto.join('\n')}
+
+FILTROS:
+• Zona geográfica: ${zonas[cfg.zona]}
+• Capitalización: ${caps[cfg.cap]}
+• Sector: ${sectores[cfg.sector]}
+• Perfil de riesgo adecuado: ${riesgos[cfg.riesgo]}
+• Horizonte de inversión: ${horizontes[cfg.horizonte]}
+
+REGLAS ADICIONALES:
+• Usa solo datos reales y actualizados (no inventados)
+• Si no tienes el ISIN exacto de alguna empresa, indícalo con "N/D"
+• Elige empresas con fundamentos sólidos, no solo especulativas
+• Ordénalas de mayor a menor puntuación
+• El campo "veredicto" solo puede ser uno de estos valores: "COMPRAR", "ESTUDIAR", "VIGILAR" o "EVITAR"
+• La "razon" debe estar en español y en lenguaje sencillo (máximo 2 frases)
+
+FORMATO DE RESPUESTA — Devuelve SOLO este JSON (sin texto antes ni después):
+
+[
+  {
+    "nombre": "Nombre completo de la empresa",
+    "ticker": "TICKER",
+    "isin": "ISIN o N/D",
+    "pais": "País",
+    "sector": "Sector",
+    "per": 0.0,
+    "ev_ebitda": 0.0,
+    "deuda_ebitda": 0.0,
+    "dividendo_pct": 0.0,
+    "crecimiento_ingresos": 0.0,
+    "puntuacion": 0,
+    "veredicto": "COMPRAR",
+    "razon": "Explicación sencilla en 1-2 frases de por qué esta empresa cumple los criterios."
+  }
+]
+
+Recuerda: devuelve SOLO el array JSON, sin ningún texto adicional.`;
+
+    document.getElementById('promptTexto').value = prompt;
+    document.getElementById('secPrompt').style.display = 'block';
+    document.getElementById('secPrompt').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    toast('📋 Prompt generado — cópialo en tu IA', 'info');
+}
+
+function recogerConfig() {
+    return {
+        valoracion:  document.getElementById('chk-valoracion').checked,
+        solidez:     document.getElementById('chk-solidez').checked,
+        dividendo:   document.getElementById('chk-dividendo').checked,
+        crecimiento: document.getElementById('chk-crecimiento').checked,
+        per:         document.getElementById('sl-per').value,
+        evebitda:    document.getElementById('sl-evebitda').value,
+        deuda:       document.getElementById('sl-deuda').value,
+        cajaneta:    document.getElementById('chk-cajaneta').checked,
+        div:         document.getElementById('sl-div').value,
+        divcrece:    document.getElementById('chk-divcrece').checked,
+        crec:        document.getElementById('sl-crec').value,
+        crecebitda:  document.getElementById('sl-crecebitda').value,
+        zona:        document.getElementById('sel-zona').value,
+        cap:         document.getElementById('sel-cap').value,
+        sector:      document.getElementById('sel-sector').value,
+        num:         document.getElementById('sel-num').value,
+        riesgo:      document.getElementById('sel-riesgo').value,
+        horizonte:   document.getElementById('sel-horizonte').value,
+    };
+}
+
+function copiarPrompt() {
+    const txt = document.getElementById('promptTexto').value;
+    if (!txt) { toast('Genera el prompt primero', 'error'); return; }
+    navigator.clipboard.writeText(txt).then(() => toast('✅ Prompt copiado al portapapeles', 'ok'));
+}
+
+function abrirIA(url) {
+    copiarPrompt();
+    setTimeout(() => window.open(url, '_blank'), 300);
+}
+
+function regenerarPromptEstricto() {
+    // Regenera el prompt añadiendo énfasis extra en el JSON
+    generarPromptScreener();
+    const area = document.getElementById('promptTexto');
+    area.value = area.value + '\n\nIMPORTANTE: Tu respuesta debe empezar directamente con [ y terminar con ]. Sin texto introductorio, sin explicaciones, sin bloques de código markdown. Solo el JSON puro.';
+    toast('🔄 Prompt regenerado con instrucciones JSON estrictas', 'info');
+    irPaso(2);
+}
+
+// ══════════════════════════════════════════════════════
+//  PROCESAR JSON
+// ══════════════════════════════════════════════════════
+function procesarJSON() {
+    const raw   = document.getElementById('jsonInput').value.trim();
+    const area  = document.getElementById('jsonInput');
+    const msg   = document.getElementById('msgError');
+
+    if (!raw) { mostrarError('Pega la respuesta de la IA antes de continuar.'); return; }
+
+    // Intentar extraer JSON del texto (puede venir entre ```json ... ```)
+    let jsonStr = raw;
+
+    // Buscar bloque entre ```json ... ``` o ``` ... ```
+    const matchCode = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (matchCode) jsonStr = matchCode[1].trim();
+
+    // Buscar array JSON dentro del texto
+    const matchArr = jsonStr.match(/(\[[\s\S]*\])/);
+    if (matchArr) jsonStr = matchArr[1];
+
+    try {
+        const datos = JSON.parse(jsonStr);
+        if (!Array.isArray(datos) || datos.length === 0)
+            throw new Error('El JSON no contiene un array de empresas válido.');
+
+        // Validar campos mínimos
+        const camposReq = ['nombre','ticker'];
+        const primera = datos[0];
+        const faltantes = camposReq.filter(c => !(c in primera));
+        if (faltantes.length) throw new Error(`Faltan campos obligatorios: ${faltantes.join(', ')}`);
+
+        // Normalizar datos
+        empresasData = datos.map(e => ({
+            nombre:              e.nombre || '—',
+            ticker:              e.ticker || '—',
+            isin:                e.isin || 'N/D',
+            pais:                e.pais || '—',
+            sector:              e.sector || '—',
+            per:                 parseFloat(e.per) || null,
+            ev_ebitda:           parseFloat(e.ev_ebitda) || null,
+            deuda_ebitda:        parseFloat(e.deuda_ebitda) || null,
+            dividendo_pct:       parseFloat(e.dividendo_pct) || null,
+            crecimiento_ingresos: parseFloat(e.crecimiento_ingresos) || null,
+            puntuacion:          parseInt(e.puntuacion) || 50,
+            veredicto:           (e.veredicto || 'ESTUDIAR').toUpperCase(),
+            razon:               e.razon || '',
+        }));
+
+        area.classList.remove('error'); area.classList.add('ok');
+        msg.style.display = 'none';
+        renderizarTabla(empresasData);
+        guardarScreener();
+        irPaso(3);
+        toast(`✅ ${empresasData.length} empresas cargadas correctamente`, 'ok');
+
+    } catch (err) {
+        area.classList.add('error'); area.classList.remove('ok');
+        mostrarError(`❌ Error al leer el JSON: ${err.message}<br><br>Prueba a pulsar <strong>"Regenerar con JSON estricto"</strong> para obtener un prompt que fuerza a la IA a devolver solo el JSON.`);
+    }
+}
+
+function mostrarError(html) {
+    const msg = document.getElementById('msgError');
+    msg.innerHTML = html;
+    msg.style.display = 'block';
+}
+
+function cargarEjemplo() {
+    const ejemplo = [
+        {"nombre":"Inditex","ticker":"ITX","isin":"ES0148396007","pais":"España","sector":"Consumo","per":22,"ev_ebitda":14,"deuda_ebitda":0,"dividendo_pct":3.8,"crecimiento_ingresos":12,"puntuacion":88,"veredicto":"COMPRAR","razon":"Líder mundial en moda rápida con caja neta positiva, dividendo creciente y márgenes excelentes."},
+        {"nombre":"LVMH","ticker":"MC","isin":"FR0000121014","pais":"Francia","sector":"Lujo / Consumo","per":21,"ev_ebitda":13,"deuda_ebitda":1.2,"dividendo_pct":2.1,"crecimiento_ingresos":9,"puntuacion":85,"veredicto":"COMPRAR","razon":"El gigante del lujo con marcas irreemplazables y crecimiento sostenido en Asia."},
+        {"nombre":"Microsoft","ticker":"MSFT","isin":"US5949181045","pais":"EE.UU.","sector":"Tecnología","per":33,"ev_ebitda":22,"deuda_ebitda":0.5,"dividendo_pct":0.8,"crecimiento_ingresos":15,"puntuacion":82,"veredicto":"ESTUDIAR","razon":"Crecimiento excepcional en la nube, aunque cotiza a múltiplos exigentes."},
+        {"nombre":"Repsol","ticker":"REP","isin":"ES0173516115","pais":"España","sector":"Energía","per":7,"ev_ebitda":4,"deuda_ebitda":0.8,"dividendo_pct":6.5,"crecimiento_ingresos":3,"puntuacion":77,"veredicto":"COMPRAR","razon":"Muy barata por valoración con dividendo atractivo y plan de descarbonización en marcha."},
+        {"nombre":"Veolia","ticker":"VIE","isin":"FR0000124141","pais":"Francia","sector":"Utilities","per":14,"ev_ebitda":9,"deuda_ebitda":2.9,"dividendo_pct":4.2,"crecimiento_ingresos":6,"puntuacion":71,"veredicto":"VIGILAR","razon":"Sólido negocio de agua y residuos pero con deuda elevada que hay que seguir de cerca."}
+    ];
+    document.getElementById('jsonInput').value = JSON.stringify(ejemplo, null, 2);
+    document.getElementById('jsonInput').classList.remove('error','ok');
+    document.getElementById('msgError').style.display = 'none';
+    toast('👀 Ejemplo cargado — pulsa "Procesar" para verlo', 'info');
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDERIZAR TABLA
+// ══════════════════════════════════════════════════════
+function renderizarTabla(datos) {
+    const tbody = document.getElementById('tablaBody');
+    const info  = document.getElementById('rejillaInfo');
+
+    if (!datos.length) {
+        tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><span class="ico">🔍</span><h3>Sin resultados</h3><p>Prueba a ajustar los criterios de búsqueda.</p></div></td></tr>`;
+        info.innerHTML = 'Sin empresas que mostrar';
+        return;
+    }
+
+    info.innerHTML = `<strong>${datos.length} empresas</strong> encontradas · Haz clic en las cabeceras para ordenar · Pulsa <strong>Analizar</strong> para ir directamente al análisis completo`;
+
+    tbody.innerHTML = datos.map((e, i) => {
+        const pClass = e.puntuacion >= 75 ? 'alta' : e.puntuacion >= 50 ? 'media' : 'baja';
+        const pColor = e.puntuacion >= 75 ? '#06d6a0' : e.puntuacion >= 50 ? '#fb8500' : '#ef233c';
+        const vClass = { COMPRAR:'comprar', ESTUDIAR:'estudiar', VIGILAR:'vigilar', EVITAR:'evitar' }[e.veredicto] || 'estudiar';
+        const vIcon  = { COMPRAR:'🟢', ESTUDIAR:'🔵', VIGILAR:'🟡', EVITAR:'🔴' }[e.veredicto] || '⚪';
+
+        const perClass      = colorRatio(e.per,         [15,25],  true);
+        const evClass       = colorRatio(e.ev_ebitda,   [10,15],  true);
+        const deudaClass    = colorRatio(e.deuda_ebitda,[2, 4],   true);
+        const divClass      = colorRatio(e.dividendo_pct,[2, 4],  false);
+        const crecClass     = colorRatio(e.crecimiento_ingresos,[5,10], false);
+
+        return `<tr>
+            <td class="td-empresa">
+                <div class="empresa-nombre">${e.nombre}</div>
+                <div class="empresa-ticker">${e.ticker}</div>
+                <div class="empresa-isin">${e.isin}</div>
+            </td>
+            <td class="td-sector">
+                <span class="sector-tag">${e.sector}</span>
+                <div class="pais-tag">🌍 ${e.pais}</div>
+            </td>
+            <td class="td-ratio">
+                <div class="ratio-val ${perClass}">${fmt(e.per)}</div>
+                <div class="ratio-label">PER</div>
+            </td>
+            <td class="td-ratio">
+                <div class="ratio-val ${evClass}">${fmt(e.ev_ebitda)}</div>
+                <div class="ratio-label">EV/EBITDA</div>
+            </td>
+            <td class="td-ratio">
+                <div class="ratio-val ${deudaClass}">${fmt(e.deuda_ebitda)}x</div>
+                <div class="ratio-label">Deuda</div>
+            </td>
+            <td class="td-ratio">
+                <div class="ratio-val ${divClass}">${fmt(e.dividendo_pct)}%</div>
+                <div class="ratio-label">Divid.</div>
+            </td>
+            <td class="td-ratio">
+                <div class="ratio-val ${crecClass}">${fmt(e.crecimiento_ingresos)}%</div>
+                <div class="ratio-label">Crec.</div>
+            </td>
+            <td class="td-puntuacion">
+                <div class="puntuacion-num ${pClass}">${e.puntuacion}</div>
+                <div class="puntuacion-bar"><div class="puntuacion-fill" style="width:${e.puntuacion}%;background:${pColor}"></div></div>
+                <div class="ratio-label">/ 100</div>
+            </td>
+            <td class="td-veredicto">
+                <span class="veredicto-badge ${vClass}">${vIcon} ${e.veredicto}</span>
+            </td>
+            <td class="td-acciones">
+                <button class="btn-analizar" onclick="analizarEmpresa('${encodeURIComponent(e.isin !== 'N/D' ? e.isin : e.ticker)}','${encodeURIComponent(e.nombre)}')">
+                    📊 Analizar
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    // Razones
+    const razonesEl = document.getElementById('listaRazones');
+    const secRaz    = document.getElementById('secRazones');
+    const conRazon  = datos.filter(e => e.razon);
+    if (conRazon.length) {
+        secRaz.style.display = 'block';
+        razonesEl.innerHTML = conRazon.map(e => `
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--borde);">
+                <span style="font-weight:800;color:var(--azul);font-family:'Syne',sans-serif;min-width:60px;">${e.ticker}</span>
+                <span style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;">${e.razon}</span>
+            </div>`).join('');
+    } else {
+        secRaz.style.display = 'none';
+    }
+}
+
+// helpers
+function fmt(v) { return v !== null && v !== undefined ? parseFloat(v).toFixed(1) : '—'; }
+
+function colorRatio(val, umbrales, menosEsMejor) {
+    if (val === null || val === undefined) return '';
+    if (menosEsMejor) {
+        if (val <= umbrales[0]) return 'bueno';
+        if (val <= umbrales[1]) return 'normal';
+        return 'malo';
+    } else {
+        if (val >= umbrales[1]) return 'bueno';
+        if (val >= umbrales[0]) return 'normal';
+        return 'malo';
+    }
+}
+
+// ══════════════════════════════════════════════════════
+//  ORDENAR + FILTRAR
+// ══════════════════════════════════════════════════════
+function ordenarPor(campo) {
+    if (ordenActual.campo === campo) {
+        ordenActual.asc = !ordenActual.asc;
+    } else {
+        ordenActual = { campo, asc: campo === 'nombre' || campo === 'sector' };
+    }
+
+    const sorted = [...empresasData].sort((a, b) => {
+        let va = a[campo], vb = b[campo];
+        if (va === null) va = ordenActual.asc ? Infinity : -Infinity;
+        if (vb === null) vb = ordenActual.asc ? Infinity : -Infinity;
+        if (typeof va === 'string') return ordenActual.asc ? va.localeCompare(vb) : vb.localeCompare(va);
+        return ordenActual.asc ? va - vb : vb - va;
+    });
+
+    // Actualizar icono
+    document.querySelectorAll('th').forEach(th => th.classList.remove('sorted'));
+    document.querySelectorAll('th').forEach(th => {
+        const onclick = th.getAttribute('onclick') || '';
+        if (onclick.includes(`'${campo}'`)) {
+            th.classList.add('sorted');
+            const ico = th.querySelector('.sort-ico');
+            if (ico) ico.textContent = ordenActual.asc ? '↑' : '↓';
+        }
+    });
+
+    renderizarTabla(sorted);
+}
+
+function filtrarRejilla(q) {
+    if (!q.trim()) { renderizarTabla(empresasData); return; }
+    const ql = q.toLowerCase();
+    const filtrados = empresasData.filter(e =>
+        e.nombre.toLowerCase().includes(ql) ||
+        e.ticker.toLowerCase().includes(ql) ||
+        e.isin.toLowerCase().includes(ql) ||
+        e.sector.toLowerCase().includes(ql) ||
+        e.pais.toLowerCase().includes(ql)
+    );
+    renderizarTabla(filtrados);
+}
+
+// ══════════════════════════════════════════════════════
+//  ANALIZAR EMPRESA → IR A HERRAMIENTA PRINCIPAL
+// ══════════════════════════════════════════════════════
+function analizarEmpresa(isinEnc, nombreEnc) {
+    const isin   = decodeURIComponent(isinEnc);
+    const nombre = decodeURIComponent(nombreEnc);
+    // Guardamos en sessionStorage para que la herramienta principal lo coja
+    sessionStorage.setItem('screener_isin',   isin);
+    sessionStorage.setItem('screener_nombre', nombre);
+    window.location.href = `herramienta-analisis-ia.html?isin=${encodeURIComponent(isin)}`;
+}
+
+// ══════════════════════════════════════════════════════
+//  LIMPIAR RESULTADOS
+// ══════════════════════════════════════════════════════
+function limpiarResultados() {
+    if (!empresasData.length) return;
+    if (!confirm('¿Borrar los resultados guardados de la última búsqueda?')) return;
+    empresasData = [];
+    guardarScreener();
+    renderizarTabla([]);
+    irPaso(1);
+    toast('🗑️ Resultados borrados', 'info');
+}
+
+// ══════════════════════════════════════════════════════
+//  EXPORTAR CSV
+// ══════════════════════════════════════════════════════
+function exportarCSV() {
+    if (!empresasData.length) { toast('No hay datos que exportar', 'error'); return; }
+    const cab = ['Nombre','Ticker','ISIN','País','Sector','PER','EV/EBITDA','Deuda/EBITDA','Dividendo%','Crec.Ingresos%','Puntuación','Veredicto','Razón'];
+    const filas = empresasData.map(e => [
+        e.nombre, e.ticker, e.isin, e.pais, e.sector,
+        e.per, e.ev_ebitda, e.deuda_ebitda, e.dividendo_pct, e.crecimiento_ingresos,
+        e.puntuacion, e.veredicto, `"${e.razon}"`
+    ].join(','));
+    const csv  = [cab.join(','), ...filas].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const f    = new Date(); const dd=String(f.getDate()).padStart(2,'0'), mm=String(f.getMonth()+1).padStart(2,'0'), yy=f.getFullYear();
+    a.href = url; a.download = `screener_empresas_${dd}${mm}${yy}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    toast('⬇️ CSV exportado correctamente', 'ok');
+}
+
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+let toastTimer;
+function toast(msg, tipo = 'ok', ms = 2800) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.className = tipo; el.style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.style.display = 'none', ms);
+}
+
+// ══════════════════════════════════════════════════════
+//  LEER ISIN DE LA URL (si viene de la herramienta principal)
+// ══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+    // Si hay un ISIN en la URL, ponerlo en el campo al volver
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('desde') === 'herramienta') {
+        const isinGuardado = sessionStorage.getItem('screener_isin');
+        if (isinGuardado) toast(`← De vuelta del análisis de ${isinGuardado}`, 'info');
+    }
+    // Si hay empresas guardadas de la sesión anterior, mostrarlas
+    if (empresasData.length > 0) {
+        renderizarTabla(empresasData);
+        // Marcar paso 2 y 3 como completados visualmente
+        document.getElementById('paso-btn-2').classList.add('completado');
+        document.getElementById('paso-btn-3').classList.add('completado');
+        // Mostrar aviso sutil
+        setTimeout(() => toast(`📊 ${empresasData.length} empresas de tu última búsqueda restauradas`, 'info', 4000), 600);
+    }
+});
+</script>
+</body>
+</html>

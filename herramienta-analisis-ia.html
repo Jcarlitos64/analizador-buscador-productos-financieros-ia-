@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Análisis Financiero con IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --azul:      #4361ee;
+            --azul-osc:  #3a0ca3;
+            --morado:    #7209b7;
+            --rosa:      #f72585;
+            --cyan:      #4cc9f0;
+            --verde:     #06d6a0;
+            --naranja:   #fb8500;
+            --rojo:      #ef233c;
+            --oscuro:    #0d0d1a;
+            --gris:      #6c757d;
+            --fondo:     #0d0d1a;
+            --card:      #13131f;
+            --borde:     rgba(255,255,255,.08);
+            --texto:     rgba(255,255,255,.85);
+            --texto2:    rgba(255,255,255,.45);
+            --grad1: linear-gradient(135deg,#4361ee,#7209b7);
+            --grad2: linear-gradient(135deg,#f72585,#7209b7);
+            --grad3: linear-gradient(135deg,#4cc9f0,#4361ee);
+            --grad4: linear-gradient(135deg,#06d6a0,#4cc9f0);
+            --grad5: linear-gradient(135deg,#fb8500,#f72585);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--fondo);
+            min-height: 100vh;
+            color: var(--texto);
+        }
+        body::before {
+            content:'';
+            position: fixed; inset: 0; z-index: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 5% 10%, rgba(67,97,238,.1) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 95% 90%, rgba(114,9,183,.08) 0%, transparent 55%);
+            pointer-events: none;
+        }
+        .contenedor { position: relative; z-index: 1; }
+
+        /* ── CABECERA ─────────────────────────────── */
+        .cabecera {
+            background: rgba(13,13,26,.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: white;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 1px 0 rgba(255,255,255,.07);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .cabecera-izq { display:flex; align-items:center; gap:12px; }
+        .cabecera h1 { font-size:20px; font-weight:800; letter-spacing:-.3px; font-family:'Syne',sans-serif; background:linear-gradient(135deg,#fff 40%,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .cabecera h1 small { font-size:12px; font-weight:400; opacity:.6; display:block; font-family:'DM Sans',sans-serif; -webkit-text-fill-color:rgba(255,255,255,.6); }
+        .badge-v { background:rgba(67,97,238,.25); border:1px solid rgba(67,97,238,.4); padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; color:#a78bfa; -webkit-text-fill-color:#a78bfa; }
+        .cabecera-der { display:flex; gap:8px; flex-wrap:wrap; }
+        .btn-cab {
+            background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+            color:rgba(255,255,255,.75); padding:8px 16px; border-radius:8px; cursor:pointer;
+            font-size:13px; font-weight:500; transition:all .2s;
+        }
+        .btn-cab:hover { background:rgba(255,255,255,.13); color:white; border-color:rgba(255,255,255,.25); }
+        .btn-cab.peligro { background:rgba(239,35,60,.15); border-color:rgba(239,35,60,.4); color:#ef233c; }
+
+        /* ── LAYOUT ───────────────────────────────── */
+        .contenedor { max-width:1440px; margin:0 auto; padding:20px; }
+        .grid-principal { display:grid; grid-template-columns:1fr 420px; gap:20px; }
+
+        /* ── CARDS ────────────────────────────────── */
+        .card {
+            background:var(--card); border:1px solid var(--borde); border-radius:16px; padding:22px;
+            box-shadow:0 4px 24px rgba(0,0,0,.3); margin-bottom:18px;
+        }
+        .card h2 {
+            font-size:16px; font-weight:800; color:var(--texto); margin-bottom:18px;
+            display:flex; align-items:center; gap:8px; font-family:'Syne',sans-serif;
+            border-bottom:1px solid var(--borde); padding-bottom:12px;
+        }
+        .card h3 { font-size:14px; font-weight:700; color:var(--texto2); margin:14px 0 10px; text-transform:uppercase; letter-spacing:.5px; }
+
+        /* ── CAMPO ISIN ───────────────────────────── */
+        .isin-wrap {
+            display:flex; gap:10px; align-items:stretch; margin-bottom:6px;
+        }
+        .isin-wrap input {
+            flex:1; padding:13px 16px; border:2px solid rgba(255,255,255,.1);
+            border-radius:10px; font-size:16px; font-weight:600;
+            transition:border-color .2s; color:var(--texto);
+            background:rgba(255,255,255,.05);
+        }
+        .isin-wrap input:focus { outline:none; border-color:var(--azul); background:rgba(67,97,238,.07); }
+        .btn-buscar-hist {
+            background:var(--azul); color:white; border:none; border-radius:10px;
+            padding:13px 20px; font-weight:700; cursor:pointer; white-space:nowrap;
+            font-size:13px; transition:all .2s;
+        }
+        .btn-buscar-hist:hover { background:var(--azul-osc); }
+
+        /* ── TABS ─────────────────────────────────── */
+        .tabs { display:flex; gap:6px; margin-bottom:18px; }
+        .tab {
+            padding:10px 20px; border-radius:8px; cursor:pointer;
+            font-weight:600; font-size:13px; color:var(--texto2);
+            background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); transition:all .2s;
+        }
+        .tab.activo { background:var(--azul); color:white; border-color:var(--azul); }
+        .tab:hover:not(.activo) { background:rgba(255,255,255,.08); color:var(--texto); }
+        .tab-contenido { display:none; }
+        .tab-contenido.activo { display:block; }
+
+        /* ── BOTONES DE ANÁLISIS ──────────────────── */
+        .grupo-titulo {
+            font-weight:700; font-size:11px; color:var(--texto2);
+            text-transform:uppercase; letter-spacing:1px;
+            margin:16px 0 10px; display:flex; align-items:center; gap:6px;
+        }
+        .grid-botones { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; margin-bottom:10px; }
+        .btn-analisis {
+            padding:12px 10px; border:none; border-radius:10px; cursor:pointer;
+            font-weight:700; color:white; font-size:13px; text-align:left;
+            transition:all .25s; display:flex; align-items:center; gap:7px;
+            box-shadow:0 3px 10px rgba(0,0,0,.12); line-height:1.3;
+        }
+        .btn-analisis:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.2); }
+        .btn-analisis .ico { font-size:18px; flex-shrink:0; }
+
+        .btn-t1  { background:linear-gradient(135deg,#667eea,#764ba2); }
+        .btn-t2  { background:linear-gradient(135deg,#f093fb,#f5576c); }
+        .btn-t3  { background:linear-gradient(135deg,#4facfe,#00f2fe); color:#003; }
+        .btn-t4  { background:linear-gradient(135deg,#43e97b,#38f9d7); color:#003; }
+        .btn-t5  { background:linear-gradient(135deg,#fa709a,#fee140); color:#333; }
+        .btn-t6  { background:linear-gradient(135deg,#a18cd1,#fbc2eb); color:#333; }
+        .btn-t7  { background:linear-gradient(135deg,#ff9a9e,#fad0c4); color:#333; }
+        .btn-t8  { background:linear-gradient(135deg,#84fab0,#8fd3f4); color:#003; }
+        .btn-t9  { background:linear-gradient(135deg,#ffecd2,#fcb69f); color:#333; }
+        .btn-t10 { background:linear-gradient(135deg,#a1c4fd,#c2e9fb); color:#003; }
+        .btn-t11 { background:linear-gradient(135deg,#fbc2eb,#a6c1ee); color:#333; }
+        .btn-t12 { background:linear-gradient(135deg,#fd746c,#ff9068); }
+        .btn-t13 { background:linear-gradient(135deg,#30cfd0,#330867); }
+        .btn-t14 { background:linear-gradient(135deg,#f7971e,#ffd200); color:#333; }
+
+        .btn-completo {
+            width:100%; padding:16px; border:none; border-radius:12px; cursor:pointer;
+            font-weight:800; font-size:16px; color:white; margin:12px 0;
+            background:var(--grad1); box-shadow:0 6px 20px rgba(67,97,238,.4);
+            transition:all .25s; display:flex; align-items:center; justify-content:center; gap:10px;
+        }
+        .btn-completo:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(67,97,238,.5); }
+
+        /* ── PROMPT AREA ──────────────────────────── */
+        .prompt-area {
+            background:rgba(67,97,238,.06);
+            border:1px solid rgba(67,97,238,.25); border-radius:12px; padding:18px; margin:16px 0;
+        }
+        .prompt-area h3 { color:var(--azul); margin-bottom:10px; }
+        #promptGenerado {
+            background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.08); border-radius:8px;
+            padding:14px; font-family:monospace; font-size:13px;
+            white-space:pre-wrap; word-break:break-word;
+            max-height:280px; overflow-y:auto; margin:10px 0;
+            color:#c8d6ff; line-height:1.6;
+        }
+        .prompt-acciones { display:flex; gap:8px; flex-wrap:wrap; }
+
+        /* ── BOTONES IAs ──────────────────────────── */
+        .ia-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:12px 0; }
+        .btn-ia {
+            padding:10px 8px; border:none; border-radius:10px; cursor:pointer;
+            font-weight:700; color:white; font-size:12px; text-align:center;
+            transition:all .2s; box-shadow:0 3px 10px rgba(0,0,0,.15);
+            display:flex; flex-direction:column; align-items:center; gap:4px;
+        }
+        .btn-ia:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,.22); }
+        .btn-ia .ia-ico { font-size:20px; }
+        .btn-ia .ia-plan { font-size:9px; opacity:.8; }
+        .ia-gemini   { background:linear-gradient(135deg,#4285F4,#34A853); }
+        .ia-deepseek { background:linear-gradient(135deg,#0d1117,#30363d); }
+        .ia-chatgpt  { background:linear-gradient(135deg,#10a37f,#1a7f64); }
+        .ia-claude   { background:linear-gradient(135deg,#cc785c,#a0522d); }
+        .ia-mistral  { background:linear-gradient(135deg,#7c3aed,#5b21b6); }
+        .ia-perplexity{ background:linear-gradient(135deg,#e85d04,#dc2f02); }
+        .ia-copilot  { background:linear-gradient(135deg,#0066ff,#0044cc); }
+        .ia-hf       { background:linear-gradient(135deg,#059669,#047857); }
+        .btn-copiar-prompt {
+            background:var(--azul); color:white; border:none; border-radius:8px;
+            padding:10px 18px; font-weight:700; cursor:pointer; font-size:13px;
+            transition:all .2s; display:flex; align-items:center; gap:6px;
+        }
+        .btn-copiar-prompt:hover { background:var(--azul-osc); }
+
+        /* ── GUARDAR RESPUESTA ────────────────────── */
+        .guardar-area textarea {
+            width:100%; min-height:100px; padding:12px; font-family:monospace;
+            font-size:13px; border:2px solid rgba(255,255,255,.1); border-radius:8px;
+            resize:vertical; transition:border-color .2s;
+            background:rgba(255,255,255,.04); color:var(--texto);
+        }
+        .guardar-area textarea:focus { outline:none; border-color:var(--azul); }
+        .btn-guardar {
+            width:100%; margin-top:10px; padding:13px; border:none; border-radius:10px;
+            font-weight:800; font-size:14px; color:white; cursor:pointer;
+            background:var(--grad4); box-shadow:0 4px 14px rgba(6,214,160,.3);
+            transition:all .25s; display:flex; align-items:center; justify-content:center; gap:8px;
+        }
+        .btn-guardar:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(6,214,160,.4); }
+
+        /* ── HISTORIAL ────────────────────────────── */
+        .buscador-hist { display:flex; gap:8px; margin-bottom:14px; }
+        .buscador-hist input {
+            flex:1; padding:11px 14px; border:1px solid rgba(255,255,255,.1); border-radius:8px;
+            font-size:14px; transition:border-color .2s;
+            background:rgba(255,255,255,.05); color:var(--texto);
+        }
+        .buscador-hist input:focus { outline:none; border-color:var(--azul); }
+        .lista-items { max-height:420px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+        .item-resp {
+            background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:10px;
+            padding:13px 15px; transition:all .2s; cursor:pointer;
+        }
+        .item-resp:hover { border-color:rgba(67,97,238,.5); box-shadow:0 3px 12px rgba(67,97,238,.15); transform:translateX(3px); }
+        .item-resp .isin-tag { font-weight:800; color:var(--azul); font-size:15px; }
+        .item-resp .tipo-tag { font-size:11px; background:var(--azul); color:white; padding:2px 8px; border-radius:12px; font-weight:700; margin-left:8px; }
+        .item-resp .fecha-tag { font-size:11px; color:var(--texto2); margin-top:3px; }
+        .item-resp .resumen-tag { font-size:12px; color:var(--texto2); margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .item-acciones { display:flex; gap:6px; margin-top:8px; justify-content:flex-end; }
+        .btn-acc {
+            padding:5px 12px; border:none; border-radius:6px; cursor:pointer;
+            font-size:12px; font-weight:700; transition:all .2s;
+        }
+        .btn-acc:hover { transform:translateY(-1px); }
+        .btn-acc.ver  { background:#4cc9f0; color:#003; }
+        .btn-acc.edit { background:#7209b7; color:white; }
+        .btn-acc.del  { background:#ef233c; color:white; }
+
+        /* Detalle respuesta */
+        .detalle-resp {
+            background:rgba(67,97,238,.06); border:1px solid rgba(67,97,238,.3); border-radius:10px;
+            padding:18px; margin-top:14px; display:none;
+        }
+        .detalle-cab { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+        .detalle-titulo { font-weight:800; color:var(--azul); font-size:15px; }
+        .detalle-cuerpo { font-family:monospace; font-size:13px; white-space:pre-wrap; max-height:480px; overflow-y:auto; line-height:1.65; color:rgba(255,255,255,.75); }
+        .detalle-acciones { display:flex; gap:8px; }
+
+        /* ── COLUMNA DERECHA ──────────────────────── */
+        .col-derecha {}
+
+        /* Guía rápida */
+        .paso-guia { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; }
+        .paso-num { background:rgba(67,97,238,.3); border:1px solid rgba(67,97,238,.5); color:#a78bfa; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; flex-shrink:0; }
+        .paso-txt { font-size:13px; color:var(--texto2); line-height:1.55; }
+        .paso-txt strong { color:var(--texto); }
+
+        /* Tipos de análisis tabla */
+        .tipos-table { width:100%; border-collapse:collapse; font-size:12px; }
+        .tipos-table td { padding:7px 8px; border-bottom:1px solid rgba(255,255,255,.06); vertical-align:top; }
+        .tipos-table td:first-child { font-weight:700; color:var(--azul); white-space:nowrap; }
+        .tipos-table td:last-child { color:var(--texto2); }
+        .tipos-table tr:hover { background:rgba(255,255,255,.03); }
+
+        /* Info boxes */
+        .info-box { border-radius:10px; padding:14px 16px; margin-bottom:12px; }
+        .info-box.azul  { background:rgba(67,97,238,.1); border-left:4px solid var(--azul); }
+        .info-box.verde { background:rgba(6,214,160,.08); border-left:4px solid var(--verde); }
+        .info-box.naranja{ background:rgba(251,133,0,.08); border-left:4px solid var(--naranja); }
+        .info-box.rojo  { background:rgba(239,35,60,.08); border-left:4px solid var(--rojo); }
+        .info-box h4 { font-weight:800; font-size:14px; margin-bottom:8px; color:var(--texto); }
+        .info-box p, .info-box li { font-size:13px; color:var(--texto2); line-height:1.6; }
+        .info-box ul { margin-left:16px; }
+        .info-box li { margin-bottom:4px; }
+
+        /* ── MODAL ────────────────────────────────── */
+        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; }
+        .modal.abierto { display:flex; }
+        .modal-cuerpo { background:#1a1a2e; border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:28px; max-width:700px; width:92%; max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+        .modal-cuerpo h3 { color:var(--azul); font-size:18px; margin-bottom:16px; }
+        .modal-cuerpo textarea { width:100%; min-height:320px; padding:14px; font-family:monospace; font-size:13px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); color:var(--texto); border-radius:8px; resize:vertical; }
+        .modal-cuerpo textarea:focus { outline:none; border-color:var(--azul); }
+        .modal-pie { display:flex; gap:10px; justify-content:flex-end; margin-top:14px; }
+        .btn-modal-ok { background:var(--verde); color:#003; border:none; border-radius:8px; padding:11px 22px; font-weight:700; cursor:pointer; font-size:14px; }
+        .btn-modal-cancel { background:rgba(255,255,255,.08); color:var(--texto2); border:1px solid var(--borde); border-radius:8px; padding:11px 22px; font-weight:700; cursor:pointer; font-size:14px; }
+
+        /* ── MODAL CARGA/GUARDA ARCHIVO ───────────── */
+        .modal-arch-cuerpo { text-align:center; }
+        .zona-drop {
+            border:2px dashed rgba(67,97,238,.5); border-radius:14px; padding:36px 20px;
+            margin:16px 0; cursor:pointer; transition:all .2s; background:rgba(67,97,238,.06);
+        }
+        .zona-drop:hover { background:rgba(67,97,238,.12); border-color:var(--azul); }
+        .zona-drop .icono { font-size:48px; margin-bottom:10px; }
+        .zona-drop p { color:var(--texto2); font-size:14px; }
+        .zona-drop strong { color:var(--azul); }
+
+        /* Toast */
+        #toast {
+            position:fixed; bottom:22px; right:22px;
+            background:rgba(13,13,26,.95); border:1px solid rgba(255,255,255,.1);
+            backdrop-filter:blur(16px); color:white;
+            padding:13px 20px; border-radius:12px; font-size:13px; font-weight:600;
+            z-index:99999; display:none; box-shadow:0 8px 32px rgba(0,0,0,.4);
+            max-width:320px;
+        }
+        #toast.ok     { border-color:rgba(6,214,160,.4); color:#06d6a0; }
+        #toast.error  { border-color:rgba(239,35,60,.4); color:#ef233c; }
+        #toast.info   { border-color:rgba(67,97,238,.4); color:#a78bfa; }
+
+        /* ── RESPONSIVE ───────────────────────────── */
+        @media(max-width:900px) {
+            .grid-principal { grid-template-columns:1fr; }
+            .ia-grid { grid-template-columns:repeat(4,1fr); }
+        }
+        @media(max-width:500px) {
+            .grid-botones { grid-template-columns:1fr; }
+            .ia-grid { grid-template-columns:repeat(2,1fr); }
+            .cabecera { padding:12px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ CABECERA ══════════════════════════════════════════ -->
+<div class="cabecera">
+    <div class="cabecera-izq">
+        <span style="font-size:28px;">🤖</span>
+        <div>
+            <h1>Análisis Financiero con IA <span class="badge-v">v3.1</span></h1>
+            <small>Analiza acciones, ETFs, fondos y bonos · Guarda tus análisis · 100% local</small>
+        </div>
+    </div>
+    <div class="cabecera-der">
+        <a href="buscador-empresas.html" class="btn-cab" style="text-decoration:none;">🔍 Buscador</a>
+        <button class="btn-cab" onclick="abrirModalCarga()">📂 Cargar análisis</button>
+        <button class="btn-cab" onclick="guardarArchivo()">💾 Guardar análisis</button>
+        <button class="btn-cab" onclick="irAyuda()">❓ Ayuda</button>
+        <button class="btn-cab peligro" onclick="confirmarBorrarTodo()">🗑️ Borrar todo</button>
+    </div>
+</div>
+
+<!-- ══ CONTENEDOR ══════════════════════════════════════════ -->
+<div class="contenedor">
+<div class="grid-principal">
+
+<!-- ════ COLUMNA IZQUIERDA ════════════════════════════════ -->
+<div>
+    <div class="card">
+        <h2>🔍 GENERADOR DE ANÁLISIS</h2>
+
+        <!-- Campo ISIN -->
+        <div class="isin-wrap">
+            <input type="text" id="isin" placeholder="Introduce el ISIN o Ticker (ej: AAPL, IE00B4L5Y983, SAN.MC)" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+            <button class="btn-buscar-hist" onclick="buscarEnHistorial()">📚 Ver guardados</button>
+        </div>
+        <p style="font-size:12px;color:var(--texto2);margin-bottom:14px;">💡 El ISIN es el código de 12 letras de tu fondo o ETF. El Ticker es el símbolo de bolsa (ej: AAPL para Apple).</p>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <div class="tab activo" onclick="cambiarTab('generar',this)">📝 Generar prompt</div>
+            <div class="tab" onclick="cambiarTab('historial',this)">📚 Análisis guardados <span id="badgeCount" style="background:#ef233c;color:white;border-radius:12px;padding:1px 7px;font-size:11px;margin-left:4px;display:none;">0</span></div>
+        </div>
+
+        <!-- ── TAB GENERAR ── -->
+        <div id="tab-generar" class="tab-contenido activo">
+
+            <!-- GRUPO: ANÁLISIS BÁSICO (para principiantes) -->
+            <div class="grupo-titulo">🟢 Análisis para empezar</div>
+            <p style="font-size:12px;color:var(--texto2);margin-bottom:10px;">Si no sabes nada de inversión, empieza por aquí. Preguntas fáciles de entender.</p>
+            <div class="grid-botones">
+                <button class="btn-analisis btn-t4" onclick="generarPrompt('basico1')">
+                    <span class="ico">🌱</span><span>¿Es una buena inversión para mí?</span>
+                </button>
+                <button class="btn-analisis btn-t8" onclick="generarPrompt('basico2')">
+                    <span class="ico">💡</span><span>Explícame qué es este producto</span>
+                </button>
+                <button class="btn-analisis btn-t9" onclick="generarPrompt('basico3')">
+                    <span class="ico">⚠️</span><span>¿Cuáles son los riesgos?</span>
+                </button>
+                <button class="btn-analisis btn-t14" onclick="generarPrompt('basico4')">
+                    <span class="ico">📅</span><span>¿Es buen momento para entrar?</span>
+                </button>
+            </div>
+
+            <!-- GRUPO: VALORACIÓN -->
+            <div class="grupo-titulo">📈 Valoración y precio</div>
+            <div class="grid-botones">
+                <button class="btn-analisis btn-t1" onclick="generarPrompt('val1')">
+                    <span class="ico">💰</span><span>¿Está barata o cara?</span>
+                </button>
+                <button class="btn-analisis btn-t2" onclick="generarPrompt('val2')">
+                    <span class="ico">🎯</span><span>Fair Value (precio justo)</span>
+                </button>
+                <button class="btn-analisis btn-t3" onclick="generarPrompt('val3')">
+                    <span class="ico">📊</span><span>Análisis de múltiplos (PER, EV…)</span>
+                </button>
+                <button class="btn-analisis btn-t6" onclick="generarPrompt('val4')">
+                    <span class="ico">🔍</span><span>¿Está infravalorada?</span>
+                </button>
+            </div>
+
+            <!-- GRUPO: SALUD FINANCIERA -->
+            <div class="grupo-titulo">🏦 Salud financiera</div>
+            <div class="grid-botones">
+                <button class="btn-analisis btn-t5" onclick="generarPrompt('sal1')">
+                    <span class="ico">📊</span><span>Resultados empresariales</span>
+                </button>
+                <button class="btn-analisis btn-t7" onclick="generarPrompt('sal2')">
+                    <span class="ico">🏦</span><span>¿Cuánta deuda tiene?</span>
+                </button>
+                <button class="btn-analisis btn-t10" onclick="generarPrompt('sal3')">
+                    <span class="ico">💵</span><span>¿Tiene más dinero que deuda?</span>
+                </button>
+                <button class="btn-analisis btn-t11" onclick="generarPrompt('sal4')">
+                    <span class="ico">📉</span><span>¿Están manipulando las cuentas?</span>
+                </button>
+            </div>
+
+            <!-- GRUPO: MACRO Y RENTA FIJA -->
+            <div class="grupo-titulo">🌍 Contexto y renta fija</div>
+            <div class="grid-botones">
+                <button class="btn-analisis btn-t12" onclick="generarPrompt('macro1')">
+                    <span class="ico">📉</span><span>Impacto bajada de tipos</span>
+                </button>
+                <button class="btn-analisis btn-t13" onclick="generarPrompt('macro2')">
+                    <span class="ico">🌍</span><span>Contexto macroeconómico</span>
+                </button>
+            </div>
+
+            <!-- BOTÓN ANÁLISIS COMPLETO -->
+            <button class="btn-completo" onclick="generarPrompt('completo')">
+                🎯 ANÁLISIS COMPLETO (todos los factores a la vez)
+            </button>
+
+            <!-- ÁREA PROMPT GENERADO -->
+            <div class="prompt-area">
+                <h3>📋 Prompt generado — listo para copiar y pegar en la IA</h3>
+                <div id="promptGenerado" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:14px;font-family:monospace;font-size:13px;white-space:pre-wrap;max-height:280px;overflow-y:auto;color:#c8d6ff;line-height:1.6;">Elige un tipo de análisis arriba para generar el prompt. Después cópialo y pégalo en la IA que prefieras.</div>
+                <div class="prompt-acciones" style="margin-top:10px;gap:8px;display:flex;flex-wrap:wrap;">
+                    <button class="btn-copiar-prompt" onclick="copiarPrompt()">📋 Copiar prompt</button>
+                    <span style="font-size:12px;color:#888;align-self:center;">→ Luego abre una IA, pega el prompt y ejecuta</span>
+                </div>
+            </div>
+
+            <!-- IAs DISPONIBLES -->
+            <h3>🤖 Abre una IA y pega el prompt</h3>
+            <div class="ia-grid">
+                <button class="btn-ia ia-gemini" onclick="abrirIA('gemini')"><span class="ia-ico">✨</span>Gemini<span class="ia-plan">Gratis · fotos</span></button>
+                <button class="btn-ia ia-deepseek" onclick="abrirIA('deepseek')"><span class="ia-ico">🐋</span>DeepSeek<span class="ia-plan">Gratis</span></button>
+                <button class="btn-ia ia-chatgpt" onclick="abrirIA('chatgpt')"><span class="ia-ico">💬</span>ChatGPT<span class="ia-plan">Gratis/Plus</span></button>
+                <button class="btn-ia ia-claude" onclick="abrirIA('claude')"><span class="ia-ico">🤖</span>Claude<span class="ia-plan">Gratis</span></button>
+                <button class="btn-ia ia-mistral" onclick="abrirIA('mistral')"><span class="ia-ico">🌪️</span>Mistral<span class="ia-plan">Gratis</span></button>
+                <button class="btn-ia ia-perplexity" onclick="abrirIA('perplexity')"><span class="ia-ico">🔎</span>Perplexity<span class="ia-plan">Gratis·web</span></button>
+                <button class="btn-ia ia-copilot" onclick="abrirIA('copilot')"><span class="ia-ico">🪟</span>Copilot<span class="ia-plan">Gratis</span></button>
+                <button class="btn-ia ia-hf" onclick="abrirIA('hf')"><span class="ia-ico">🤗</span>HuggingFace<span class="ia-plan">Open</span></button>
+            </div>
+
+            <!-- GUARDAR RESPUESTA -->
+            <div class="card" style="background:rgba(6,214,160,.06);border:1px solid rgba(6,214,160,.2);margin-top:16px;padding:18px;">
+                <h3 style="color:var(--verde);margin-bottom:10px;">💾 Guarda la respuesta de la IA</h3>
+                <p style="font-size:13px;color:var(--texto2);margin-bottom:10px;">Después de que la IA te responda, copia su respuesta y pégala aquí para guardarla. Podrás consultarla después en «Análisis guardados».</p>
+                <div class="guardar-area">
+                    <textarea id="respuestaAGuardar" placeholder="Pega aquí la respuesta completa de la IA…"></textarea>
+                    <button class="btn-guardar" onclick="guardarRespuesta()">💾 Guardar este análisis</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB HISTORIAL ── -->
+        <div id="tab-historial" class="tab-contenido">
+            <div class="buscador-hist">
+                <input type="text" id="buscarIsin" placeholder="Buscar por ISIN o Ticker…" oninput="filtrarHistorial(this.value)">
+                <button class="btn-buscar-hist" onclick="mostrarTodoHistorial()">📋 Ver todos</button>
+            </div>
+            <div id="listaRespuestas" class="lista-items">
+                <p style="color:var(--texto2);text-align:center;padding:30px;font-size:14px;">No hay análisis guardados todavía.<br>Genera un prompt, pégalo en la IA y guarda la respuesta.</p>
+            </div>
+            <div id="detalleRespuesta" class="detalle-resp">
+                <div class="detalle-cab">
+                    <div>
+                        <div class="detalle-titulo" id="detalleTitulo"></div>
+                        <div style="font-size:12px;color:#888;margin-top:3px;" id="detalleFecha"></div>
+                    </div>
+                    <div class="detalle-acciones">
+                        <button class="btn-acc edit" onclick="editarActual()">✏️ Editar</button>
+                        <button class="btn-acc del" onclick="borrarActual()">🗑️ Borrar</button>
+                        <button class="btn-acc ver" onclick="cerrarDetalle()">✕ Cerrar</button>
+                    </div>
+                </div>
+                <div class="detalle-cuerpo" id="detalleCuerpo"></div>
+            </div>
+        </div>
+
+    </div><!-- /card -->
+</div><!-- /col izq -->
+
+<!-- ════ COLUMNA DERECHA ══════════════════════════════════ -->
+<div class="col-derecha">
+
+    <!-- GUÍA RÁPIDA -->
+    <div class="card">
+        <h2>📘 Cómo usar esta herramienta</h2>
+        <div class="paso-guia"><div class="paso-num">1</div><div class="paso-txt"><strong>Escribe el ISIN o Ticker</strong> del producto que quieres analizar (ej: <code>AAPL</code> para Apple, <code>IE00B4L5Y983</code> para un ETF).</div></div>
+        <div class="paso-guia"><div class="paso-num">2</div><div class="paso-txt"><strong>Elige el tipo de análisis.</strong> Si no sabes por dónde empezar, usa los botones verdes «Para empezar».</div></div>
+        <div class="paso-guia"><div class="paso-num">3</div><div class="paso-txt"><strong>Pulsa «Copiar prompt».</strong> El texto se copia automáticamente.</div></div>
+        <div class="paso-guia"><div class="paso-num">4</div><div class="paso-txt"><strong>Abre una IA</strong> (recomendamos DeepSeek o Gemini, ambas gratuitas) y pega el texto con Ctrl+V.</div></div>
+        <div class="paso-guia"><div class="paso-num">5</div><div class="paso-txt"><strong>La IA te responderá</strong> con el análisis. Si adjuntas una captura de tu broker, el análisis es aún más preciso.</div></div>
+        <div class="paso-guia"><div class="paso-num">6</div><div class="paso-txt"><strong>Copia la respuesta</strong> de la IA y pégala en la caja verde de abajo para guardarla.</div></div>
+        <div class="paso-guia"><div class="paso-num">7</div><div class="paso-txt"><strong>Guarda el archivo</strong> (botón «💾 Guardar análisis» arriba) para no perder tus análisis al cerrar el navegador.</div></div>
+
+        <div class="info-box azul" style="margin-top:14px;">
+            <h4>💡 Consejo para principiantes</h4>
+            <p>Empieza por «¿Es una buena inversión para mí?». La IA te explicará el producto en lenguaje sencillo, sus riesgos y si encaja con un inversor sin experiencia.</p>
+        </div>
+    </div>
+
+    <!-- TIPOS DE ANÁLISIS -->
+    <div class="card">
+        <h2>📋 Qué analiza cada botón</h2>
+
+        <p style="font-size:11px;color:var(--texto2);margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">🟢 Para empezar</p>
+        <table class="tipos-table">
+            <tr><td>¿Es buena inversión para mí?</td><td>Explicación sencilla, perfil de riesgo, si es apta para principiantes</td></tr>
+            <tr><td>¿Qué es este producto?</td><td>Tipo de activo, cómo funciona, dónde cotiza, en qué invierte</td></tr>
+            <tr><td>¿Cuáles son los riesgos?</td><td>Riesgos principales en lenguaje claro, probabilidad de pérdida</td></tr>
+            <tr><td>¿Buen momento para entrar?</td><td>Ciclo económico, valoración actual, estrategia recomendada</td></tr>
+        </table>
+
+        <p style="font-size:11px;color:var(--texto2);margin:12px 0 8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">📈 Valoración</p>
+        <table class="tipos-table">
+            <tr><td>¿Está barata o cara?</td><td>PER, EV/EBITDA, comparación con sector e historia</td></tr>
+            <tr><td>Fair Value</td><td>Precio justo estimado y cuánto puede subir (upside)</td></tr>
+            <tr><td>Múltiplos</td><td>PER, P/VC, P/Ventas vs histórico y competidores</td></tr>
+            <tr><td>¿Infravalorada?</td><td>Consenso analistas, precio objetivo, margen de seguridad</td></tr>
+        </table>
+
+        <p style="font-size:11px;color:var(--texto2);margin:12px 0 8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">🏦 Salud financiera</p>
+        <table class="tipos-table">
+            <tr><td>Resultados empresariales</td><td>Ventas, EBITDA, beneficio, flujo de caja — últimos 5 años</td></tr>
+            <tr><td>¿Cuánta deuda tiene?</td><td>Deuda total, años para pagarla, riesgo de impago</td></tr>
+            <tr><td>¿Más dinero que deuda?</td><td>Si la empresa tiene caja neta positiva (señal muy buena)</td></tr>
+            <tr><td>¿Cuentas manipuladas?</td><td>Señales de alarma contables, calidad del beneficio</td></tr>
+        </table>
+
+        <p style="font-size:11px;color:var(--texto2);margin:12px 0 8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">🌍 Macro y renta fija</p>
+        <table class="tipos-table">
+            <tr><td>Impacto bajada tipos</td><td>Cómo afecta a bonos y acciones sensibles a tipos de interés</td></tr>
+            <tr><td>Contexto macroeconómico</td><td>Entorno de inflación, ciclo económico, sectores favorecidos</td></tr>
+        </table>
+    </div>
+
+    <!-- GLOSARIO RÁPIDO -->
+    <div class="card">
+        <h2>📖 Glosario rápido</h2>
+        <div class="info-box azul">
+            <ul>
+                <li><strong>ISIN</strong>: Código de 12 caracteres que identifica un fondo o ETF (ej: IE00B4L5Y983)</li>
+                <li><strong>Ticker</strong>: Símbolo de bolsa de una acción (ej: AAPL = Apple, SAN = Santander)</li>
+                <li><strong>PER</strong>: Cuántos años de beneficios vale la empresa. Bajo = barata, alto = cara</li>
+                <li><strong>EV/EBITDA</strong>: Cómo se valora la empresa respecto a lo que gana. Menos de 10 suele ser atractivo</li>
+                <li><strong>Fair Value</strong>: Precio justo estimado. Si la acción cotiza por debajo, puede ser una oportunidad</li>
+                <li><strong>Deuda neta</strong>: Deuda total menos la caja. Si es negativa, la empresa tiene más dinero que deudas</li>
+                <li><strong>ETF</strong>: Fondo que cotiza en bolsa, generalmente muy barato de comisiones</li>
+                <li><strong>Renta fija</strong>: Bonos. Prestan dinero a Estados o empresas a cambio de un interés fijo</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ARCHIVO -->
+    <div class="card">
+        <h2>💾 Tus datos — seguridad</h2>
+        <div class="info-box verde">
+            <h4>🔒 100% privado</h4>
+            <p>Todos tus análisis se guardan <strong>solo en tu navegador</strong>. Ningún dato sale de tu equipo.</p>
+        </div>
+        <div class="info-box naranja">
+            <h4>⚠️ Importante: guarda el archivo</h4>
+            <p>Al cerrar el navegador puedes perder los datos si no guardas. Usa el botón <strong>«💾 Guardar análisis»</strong> de arriba regularmente. El archivo se llama <code>analisis-financieros-ia.json</code> para diferenciarlo de la cartera.</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+            <button class="btn-cab" style="background:var(--azul);border:none;color:white;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:700;flex:1;" onclick="guardarArchivo()">💾 Guardar ahora</button>
+            <button class="btn-cab" style="background:#555;border:none;color:white;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:700;flex:1;" onclick="abrirModalCarga()">📂 Cargar backup</button>
+        </div>
+        <p style="font-size:11px;color:#aaa;margin-top:8px;text-align:center;" id="infoContador">Sin análisis guardados todavía.</p>
+    </div>
+
+</div><!-- /col der -->
+</div><!-- /grid -->
+</div><!-- /contenedor -->
+
+<!-- ══ MODAL EDICIÓN ═════════════════════════════════════ -->
+<div id="modalEdicion" class="modal">
+    <div class="modal-cuerpo">
+        <h3 id="modalTitulo">✏️ Editar análisis</h3>
+        <textarea id="modalContenido" placeholder="Edita el contenido del análisis…"></textarea>
+        <div class="modal-pie">
+            <button class="btn-modal-ok" onclick="guardarEdicion()">💾 Guardar cambios</button>
+            <button class="btn-modal-cancel" onclick="cerrarModal()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL CARGA ARCHIVO ══════════════════════════════ -->
+<div id="modalCarga" class="modal">
+    <div class="modal-cuerpo modal-arch-cuerpo">
+        <h3>📂 Cargar análisis guardados</h3>
+        <p style="color:var(--texto2);font-size:14px;margin-bottom:10px;">Carga el archivo <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px;color:#c8d6ff;">analisis-financieros-ia.json</code> que guardaste anteriormente para recuperar todos tus análisis.</p>
+        <div class="zona-drop" id="zonaDrop"
+             onclick="document.getElementById('inputArchivo').click()"
+             ondragover="event.preventDefault();this.style.background='#dbeafe'"
+             ondragleave="this.style.background='#f8fbff'"
+             ondrop="soltar(event)">
+            <div class="icono">📂</div>
+            <p><strong>Haz clic</strong> o <strong>arrastra</strong> el archivo aquí</p>
+            <p style="font-size:12px;margin-top:6px;color:var(--texto2);">Solo archivos .json generados por esta herramienta</p>
+        </div>
+        <input type="file" id="inputArchivo" accept=".json" style="display:none" onchange="cargarArchivo(this)">
+        <div id="infoArchivoCargado" style="display:none;background:rgba(6,214,160,.1);border:1px solid rgba(6,214,160,.3);border-radius:8px;padding:12px;margin-bottom:12px;font-size:13px;color:var(--verde);"></div>
+        <div class="modal-pie">
+            <button class="btn-modal-cancel" onclick="cerrarModalCarga()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ TOAST ═════════════════════════════════════════════ -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  CLAVE DE STORAGE — distinta a la de cartera de inversión
+// ══════════════════════════════════════════════════════════
+const STORAGE_KEY = 'analisisFinancierosIA_v3';
+
+// ══════════════════════════════════════════════════════════
+//  ESTADO GLOBAL
+// ══════════════════════════════════════════════════════════
+let analisis = cargarDeStorage();
+let idxActual = -1;
+
+function cargarDeStorage() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch(e) { return []; }
+}
+function guardarEnStorage() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(analisis));
+    actualizarContador();
+}
+
+// ══════════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════════
+let toastTimer;
+function toast(msg, tipo='ok', ms=2800) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = tipo;
+    el.style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.style.display='none', ms);
+}
+
+// ══════════════════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════════════════
+function cambiarTab(id, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('activo'));
+    document.querySelectorAll('.tab-contenido').forEach(c => c.classList.remove('activo'));
+    btn.classList.add('activo');
+    document.getElementById('tab-'+id).classList.add('activo');
+    if (id === 'historial') mostrarTodoHistorial();
+}
+
+// ══════════════════════════════════════════════════════════
+//  IAs
+// ══════════════════════════════════════════════════════════
+const IA_URLS = {
+    gemini:    'https://gemini.google.com',
+    deepseek:  'https://chat.deepseek.com',
+    chatgpt:   'https://chatgpt.com',
+    claude:    'https://claude.ai',
+    mistral:   'https://mistral.ai/en/mistral-ai-studio-for-individuals',
+    perplexity:'https://www.perplexity.ai',
+    copilot:   'https://copilot.microsoft.com',
+    hf:        'https://huggingface.co/chat'
+};
+function abrirIA(id) { window.open(IA_URLS[id], '_blank'); }
+
+// ══════════════════════════════════════════════════════════
+//  COPIAR PROMPT
+// ══════════════════════════════════════════════════════════
+function copiarPrompt() {
+    const txt = document.getElementById('promptGenerado').innerText;
+    if (txt.startsWith('Elige un tipo')) { toast('Primero genera un prompt', 'error'); return; }
+    navigator.clipboard.writeText(txt)
+        .then(() => toast('✅ Prompt copiado al portapapeles', 'ok'))
+        .catch(() => toast('❌ No se pudo copiar. Usa Ctrl+A y Ctrl+C manualmente.', 'error'));
+}
+
+// ══════════════════════════════════════════════════════════
+//  GUARDAR RESPUESTA
+// ══════════════════════════════════════════════════════════
+function guardarRespuesta() {
+    const isin = document.getElementById('isin').value.trim().toUpperCase();
+    const resp = document.getElementById('respuestaAGuardar').value.trim();
+    const tipo = document.getElementById('promptGenerado').dataset.tipo || 'General';
+
+    if (!isin) { toast('Introduce el ISIN o Ticker primero', 'error'); return; }
+    if (!resp) { toast('Pega la respuesta de la IA antes de guardar', 'error'); return; }
+
+    analisis.push({
+        id: Date.now(),
+        isin,
+        tipo,
+        fecha: new Date().toLocaleDateString('es-ES'),
+        hora:  new Date().toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'}),
+        contenido: resp,
+        editado: false
+    });
+
+    guardarEnStorage();
+    document.getElementById('respuestaAGuardar').value = '';
+    actualizarBadge();
+    toast('✅ Análisis guardado correctamente', 'ok');
+}
+
+// ══════════════════════════════════════════════════════════
+//  HISTORIAL
+// ══════════════════════════════════════════════════════════
+function mostrarTodoHistorial() {
+    renderLista(analisis);
+}
+
+function buscarEnHistorial() {
+    const isin = document.getElementById('isin').value.trim().toUpperCase();
+    if (!isin) { toast('Introduce un ISIN primero', 'info'); return; }
+    document.getElementById('buscarIsin').value = isin;
+    filtrarHistorial(isin);
+    // Cambiar tab
+    document.querySelectorAll('.tab')[1].click();
+}
+
+function filtrarHistorial(term) {
+    const t = term.trim().toUpperCase();
+    const filtrado = t ? analisis.filter(a => a.isin.includes(t)) : analisis;
+    renderLista(filtrado);
+}
+
+function renderLista(lista) {
+    const el = document.getElementById('listaRespuestas');
+    cerrarDetalle();
+    if (!lista.length) {
+        el.innerHTML = '<p style="color:#888;text-align:center;padding:30px;font-size:14px;">No se encontraron análisis guardados.</p>';
+        return;
+    }
+    const sorted = [...lista].sort((a,b) => b.id - a.id);
+    el.innerHTML = sorted.map(a => {
+        const idxReal = analisis.indexOf(a);
+        return `<div class="item-resp" onclick="verRespuesta(${idxReal})">
+            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+                <span class="isin-tag">${a.isin}</span>
+                <span class="tipo-tag">${a.tipo||'General'}</span>
+                ${a.editado ? '<span style="font-size:10px;background:#f59e0b;color:#fff;padding:1px 6px;border-radius:8px;">editado</span>' : ''}
+            </div>
+            <div class="fecha-tag">${a.fecha} ${a.hora}</div>
+            <div class="resumen-tag">${a.contenido.substring(0,120)}…</div>
+            <div class="item-acciones" onclick="event.stopPropagation()">
+                <button class="btn-acc ver"  onclick="verRespuesta(${idxReal})">👁️ Ver</button>
+                <button class="btn-acc edit" onclick="abrirEdicion(${idxReal})">✏️ Editar</button>
+                <button class="btn-acc del"  onclick="borrar(${idxReal})">🗑️ Borrar</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function verRespuesta(idx) {
+    const a = analisis[idx];
+    if (!a) return;
+    idxActual = idx;
+    document.getElementById('detalleTitulo').textContent = `${a.isin} — ${a.tipo||'Análisis'}`;
+    document.getElementById('detalleFecha').textContent = `${a.fecha} ${a.hora}${a.editado?' · editado':''}`;
+    document.getElementById('detalleCuerpo').textContent = a.contenido;
+    const el = document.getElementById('detalleRespuesta');
+    el.style.display = 'block';
+    el.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function cerrarDetalle() {
+    document.getElementById('detalleRespuesta').style.display = 'none';
+    idxActual = -1;
+}
+
+function editarActual() { if (idxActual >= 0) abrirEdicion(idxActual); }
+function borrarActual()  { if (idxActual >= 0) borrar(idxActual); }
+
+function abrirEdicion(idx) {
+    const a = analisis[idx];
+    if (!a) return;
+    idxActual = idx;
+    document.getElementById('modalTitulo').textContent = `✏️ Editando: ${a.isin} — ${a.fecha}`;
+    document.getElementById('modalContenido').value = a.contenido;
+    document.getElementById('modalEdicion').classList.add('abierto');
+}
+
+function guardarEdicion() {
+    const contenido = document.getElementById('modalContenido').value.trim();
+    if (!contenido) { toast('El contenido no puede estar vacío', 'error'); return; }
+    analisis[idxActual].contenido = contenido;
+    analisis[idxActual].editado = true;
+    guardarEnStorage();
+    cerrarModal();
+    mostrarTodoHistorial();
+    if (document.getElementById('detalleRespuesta').style.display === 'block') verRespuesta(idxActual);
+    toast('✅ Análisis actualizado', 'ok');
+}
+
+function borrar(idx) {
+    const a = analisis[idx];
+    if (!a) return;
+    if (!confirm(`¿Borrar el análisis de ${a.isin} del ${a.fecha}? Esta acción no se puede deshacer.`)) return;
+    analisis.splice(idx, 1);
+    guardarEnStorage();
+    actualizarBadge();
+    mostrarTodoHistorial();
+    cerrarDetalle();
+    toast('🗑️ Análisis borrado', 'info');
+}
+
+function cerrarModal() { document.getElementById('modalEdicion').classList.remove('abierto'); }
+
+// ══════════════════════════════════════════════════════════
+//  GUARDAR / CARGAR ARCHIVO JSON
+// ══════════════════════════════════════════════════════════
+function generarNombreAnalisis() {
+    const n = new Date();
+    const dd = String(n.getDate()).padStart(2,'0');
+    const mm = String(n.getMonth()+1).padStart(2,'0');
+    const yy = n.getFullYear();
+    const hh = String(n.getHours()).padStart(2,'0');
+    const mi = String(n.getMinutes()).padStart(2,'0');
+    return `analisis_financiero_${dd}${mm}${yy}_${hh}${mi}.json`;
+}
+
+function guardarArchivo() {
+    if (!analisis.length) { toast('No hay análisis que guardar todavía', 'info'); return; }
+    const nombre = generarNombreAnalisis();
+    // Incluir datos del screener si existen
+    let screenerDatos = null;
+    try {
+        const sk = localStorage.getItem('screenerEmpresasIA_v1');
+        if (sk) screenerDatos = JSON.parse(sk);
+    } catch(e) {}
+    const blob = new Blob([JSON.stringify({
+        app: 'analisis-financieros-ia',
+        version: '3.1',
+        exportado: new Date().toISOString(),
+        totalAnalisis: analisis.length,
+        datos: analisis,
+        screener: screenerDatos
+    }, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nombre;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast(`✅ Guardado: ${nombre} (${analisis.length} análisis)`, 'ok', 3500);
+}
+
+function abrirModalCarga() { document.getElementById('modalCarga').classList.add('abierto'); }
+function cerrarModalCarga() { document.getElementById('modalCarga').classList.remove('abierto'); }
+
+function soltar(e) {
+    e.preventDefault();
+    document.getElementById('zonaDrop').style.background = '#f8fbff';
+    const file = e.dataTransfer.files[0];
+    if (file) procesarArchivo(file);
+}
+
+function cargarArchivo(input) {
+    if (input.files[0]) procesarArchivo(input.files[0]);
+}
+
+function procesarArchivo(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const json = JSON.parse(e.target.result);
+            // Compatibilidad: puede ser el objeto envoltorio o el array directo
+            const datos = json.datos || (Array.isArray(json) ? json : null);
+            // Restaurar datos del screener si existen
+            if (json.screener) {
+                try { localStorage.setItem('screenerEmpresasIA_v1', JSON.stringify(json.screener)); } catch(e) {}
+            }
+            if (!datos) throw new Error('Formato no reconocido. Asegúrate de cargar el archivo correcto (analisis-financieros-ia.json).');
+
+            // Verificar que no es el archivo de la cartera de inversión
+            if (json.app === 'cartera-inversion' || json.cartera || json.version === '3.0' && !json.datos) {
+                throw new Error('Este parece ser el archivo de la cartera de inversión, no de análisis. Usa el archivo correcto: analisis-financieros-ia.json');
+            }
+
+            const previos = analisis.length;
+            // Merge: no duplicar (por id)
+            const idsExistentes = new Set(analisis.map(a => a.id));
+            const nuevos = datos.filter(a => !idsExistentes.has(a.id));
+            analisis = [...analisis, ...nuevos];
+            guardarEnStorage();
+            actualizarBadge();
+
+            document.getElementById('infoArchivoCargado').style.display = 'block';
+            document.getElementById('infoArchivoCargado').innerHTML =
+                `✅ <strong>Cargado correctamente</strong><br>${nuevos.length} análisis nuevos añadidos · ${datos.length - nuevos.length} ya existían · Total ahora: ${analisis.length}`;
+
+            toast(`✅ ${nuevos.length} análisis cargados`, 'ok', 3500);
+            setTimeout(() => cerrarModalCarga(), 2500);
+        } catch(err) {
+            toast('❌ ' + err.message, 'error', 5000);
+        }
+    };
+    reader.readAsText(file);
+}
+
+// ══════════════════════════════════════════════════════════
+//  CONTADOR Y BADGE
+// ══════════════════════════════════════════════════════════
+function actualizarContador() {
+    const el = document.getElementById('infoContador');
+    if (el) el.textContent = analisis.length
+        ? `${analisis.length} análisis guardados en el navegador.`
+        : 'Sin análisis guardados todavía.';
+    actualizarBadge();
+}
+function actualizarBadge() {
+    const b = document.getElementById('badgeCount');
+    if (!b) return;
+    if (analisis.length > 0) { b.style.display='inline'; b.textContent=analisis.length; }
+    else b.style.display='none';
+}
+
+// ══════════════════════════════════════════════════════════
+//  BORRAR TODO
+// ══════════════════════════════════════════════════════════
+function confirmarBorrarTodo() {
+    if (!analisis.length) { toast('No hay análisis que borrar', 'info'); return; }
+    if (!confirm(`⚠️ ¿Borrar TODOS los ${analisis.length} análisis guardados? Esta acción NO se puede deshacer.\n\nGuarda el archivo antes si quieres hacer una copia de seguridad.`)) return;
+    analisis = [];
+    guardarEnStorage();
+    actualizarBadge();
+    mostrarTodoHistorial();
+    toast('🗑️ Todos los análisis borrados', 'info');
+}
+
+// ══════════════════════════════════════════════════════════
+//  AYUDA
+// ══════════════════════════════════════════════════════════
+function irAyuda() { window.open('ayuda-analisis-ia.html', '_blank'); }
+
+// ══════════════════════════════════════════════════════════
+//  AVISO AL SALIR — modal con nombre dinámico
+// ══════════════════════════════════════════════════════════
+let _analisisGuardadoConfirmado = false;
+
+function mostrarModalSalidaAnalisis(callback) {
+    if (document.getElementById('_modalSalidaA')) return;
+    const nombre = generarNombreAnalisis();
+    const overlay = document.createElement('div');
+    overlay.id = '_modalSalidaA';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = `
+        <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:32px 28px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.7);text-align:center;">
+            <div style="font-size:52px;margin-bottom:12px;">💾</div>
+            <h3 style="font-size:19px;color:white;margin-bottom:10px;font-weight:800;font-family:'Syne',sans-serif;">¿Guardar antes de salir?</h3>
+            <p style="font-size:14px;color:rgba(255,255,255,.55);line-height:1.65;margin-bottom:22px;">
+                Se descargará el archivo<br>
+                <strong style="color:#4361ee;font-size:13px;">${nombre}</strong><br>
+                con todos tus análisis guardados.
+            </p>
+            <div style="display:flex;gap:10px;margin-bottom:10px;">
+                <button id="_btnGSA" style="flex:1;padding:14px;background:linear-gradient(135deg,#4361ee,#7209b7);color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">💾 Guardar y salir</button>
+                <button id="_btnSSA" style="flex:1;padding:14px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">Salir sin guardar</button>
+            </div>
+            <button id="_btnCSA" style="background:none;border:none;color:rgba(255,255,255,.35);font-size:13px;cursor:pointer;padding:6px;">↩ Cancelar — quedarme aquí</button>
+        </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('_btnGSA').onclick = () => { guardarArchivo(); _analisisGuardadoConfirmado = true; document.body.removeChild(overlay); if(callback) callback(true); };
+    document.getElementById('_btnSSA').onclick = () => { _analisisGuardadoConfirmado = true; document.body.removeChild(overlay); if(callback) callback(true); };
+    document.getElementById('_btnCSA').onclick = () => { document.body.removeChild(overlay); if(callback) callback(false); };
+}
+
+window.addEventListener('beforeunload', e => {
+    if (analisis.length > 0 && !_analisisGuardadoConfirmado) {
+        e.preventDefault();
+        e.returnValue = '¿Has guardado el archivo de análisis antes de salir?';
+    }
+});
+
+document.addEventListener('click', e => {
+    const link = e.target.closest('a[href]');
+    if (link) {
+        const href = link.getAttribute('href') || '';
+        if (href && href !== '#' && !href.startsWith('javascript') && !href.startsWith('mailto')) {
+            if (analisis.length > 0 && !_analisisGuardadoConfirmado) {
+                e.preventDefault();
+                mostrarModalSalidaAnalisis(ok => { if(ok) location.href = href; });
+            }
+        }
+    }
+});
+
+// ══════════════════════════════════════════════════════════
+//  GENERADOR DE PROMPTS — mejorados para principiantes
+// ══════════════════════════════════════════════════════════
+function generarPrompt(tipo) {
+    const isin = document.getElementById('isin').value.trim().toUpperCase();
+    if (!isin) { toast('Introduce el ISIN o Ticker primero', 'error'); return; }
+
+    const f = new Date().toLocaleDateString('es-ES');
+    const cabecera = `🤖 ANÁLISIS FINANCIERO CON IA
+Fecha: ${f}
+Producto: ${isin}
+═══════════════════════════════════════════════════
+
+INSTRUCCIONES OBLIGATORIAS — LÉELAS ANTES DE RESPONDER:
+
+1. IDIOMA Y TONO: Responde en español. Escribe como si le explicaras esto a un familiar que nunca ha invertido en su vida. Nada de tecnicismos sin explicar.
+
+2. TÉRMINOS TÉCNICOS: Si tienes que usar un término financiero (PER, EBITDA, dividendo…), explícalo justo después entre paréntesis con una frase sencilla. Ejemplo: "El PER (las veces que el precio incluye el beneficio anual de la empresa) es de 15".
+
+3. ANALOGÍAS: Usa comparaciones con la vida cotidiana siempre que puedas. Ejemplo: "Es como si la empresa debiera 3 años de su sueldo al banco".
+
+4. DATOS REALES: Usa siempre datos reales y actualizados. Si no tienes un dato concreto, dilo claramente: "No dispongo de este dato actualizado".
+
+5. VEREDICTO FINAL OBLIGATORIO: Termina SIEMPRE con un veredicto claro usando este formato exacto:
+   🟢 COMPRAR — [explica en 2 frases sencillas por qué]
+   🟡 MANTENER — [explica en 2 frases sencillas por qué]
+   🔴 VENDER / EVITAR — [explica en 2 frases sencillas por qué]
+   Elige UNO solo y justifícalo sin jerga.
+
+6. ALTERNATIVAS: Si el producto no es adecuado para un principiante, sugiere siempre qué tipo de producto sería más apropiado (no hace falta que sea uno concreto, basta con el tipo: "un fondo indexado global", "un ETF diversificado", etc.).
+
+7. LONGITUD: Responde de forma completa pero sin repetirte. Cada sección debe aportar información nueva.
+═══════════════════════════════════════════════════
+
+`;
+
+    const PROMPTS = {
+
+// ── BÁSICOS (para principiantes) ──────────────────────────
+basico1: `TIPO DE ANÁLISIS: ¿Es una buena inversión para mí?
+${cabecera}
+Quiero saber si este producto financiero es una buena inversión para alguien que está empezando. Analiza los siguientes puntos:
+
+1. ¿QUÉ ES ESTE PRODUCTO EN PALABRAS SIMPLES?
+   - Explícalo como si se lo contaras a alguien que nunca ha oído hablar de bolsa
+   - Usa una analogía cotidiana (ejemplo: "Es como comprar una pequeña parte de un negocio")
+   - ¿Qué tipo de activo es? ¿Dónde se compra y quién lo gestiona?
+
+2. ¿ES APTO PARA UN PRINCIPIANTE?
+   - Responde con un SÍ o NO claro, y explica el motivo en 2-3 frases
+   - ¿Cuánto tiempo habría que dejarlo sin tocarlo para que tenga sentido?
+   - En una escala del 1 al 10, ¿cómo de arriesgado es? (1 = muy tranquilo como un depósito, 10 = muy peligroso). Explica el porqué.
+
+3. ¿POR QUÉ PODRÍA SER UNA BUENA IDEA?
+   - Los 3 argumentos más sólidos a favor, en frases cortas y directas
+   - ¿Ha dado buenos resultados en el pasado? Da datos concretos si los tienes
+   - ¿Tiene algo que lo hace mejor que sus alternativas más parecidas?
+
+4. ¿QUÉ PODRÍA SALIR MAL? (sé directo, no suavices los riesgos)
+   - Los 3 principales riesgos explicados sin tecnicismos
+   - En el peor caso realista, ¿cuánto dinero podría perderse? (da un porcentaje aproximado)
+   - ¿Hay algo que esté pasando ahora mismo que lo haga más arriesgado de lo habitual?
+
+5. ¿CUÁNTO CUESTA TENERLO?
+   - ¿Qué comisiones cobra el propio producto cada año?
+   - Ejemplo concreto: "Si inviertes 1.000€, pagas aproximadamente X€ al año solo en comisiones del producto"
+   - Recuerda mencionar que el broker o banco también puede cobrar comisiones adicionales
+
+6. ¿HAY ALGO MEJOR PARA UN PRINCIPIANTE?
+   - Si NO es apto para principiantes, di qué tipo de producto sería más adecuado y por qué (no hace falta que sea uno concreto)
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 COMPRAR — ...
+🟡 MANTENER — ...
+🔴 EVITAR — ...`,
+
+basico2: `TIPO DE ANÁLISIS: ¿Qué es exactamente este producto?
+${cabecera}
+Necesito entender qué es este producto financiero desde cero, como si nunca hubiera invertido. Por favor:
+
+1. EXPLICACIÓN DESDE CERO
+   - ¿Qué es exactamente? Usa una analogía del día a día para explicarlo
+     (Ejemplo: "Una acción es como comprar un trozo de una empresa, igual que si fueras socio de un bar de tu barrio")
+   - ¿En qué categoría entra? (acción, ETF, fondo de inversión, bono, plan de pensiones…)
+   - ¿Qué diferencia hay entre este tipo de producto y tener el dinero en el banco?
+
+2. ¿EN QUÉ INVIERTE EXACTAMENTE?
+   - ¿Qué hay dentro? ¿Empresas concretas, países, sectores, materias primas?
+   - ¿Está muy diversificado (muchas cosas) o concentrado (pocas cosas)? ¿Eso es bueno o malo?
+   - Si es un fondo o ETF: ¿cuáles son las 5 posiciones más grandes?
+
+3. FICHA BÁSICA DEL PRODUCTO
+   - Nombre completo
+   - Quién lo gestiona o emite
+   - País de registro y moneda en la que cotiza
+   - Tamaño (capitalización o patrimonio del fondo)
+   - ¿Reparte dinero periódicamente (dividendos/cupones) o lo reinvierte todo?
+
+4. ¿CÓMO GANA DINERO EL INVERSOR?
+   - Explica los dos únicos caminos para ganar: que suba el precio, y/o que reparta dividendos
+   - ¿Cómo se compra y vende? ¿Necesito un broker? ¿Hay mínimo de inversión?
+   - ¿Puedo vender cuando quiera o hay un plazo mínimo?
+
+5. COMPARACIÓN CON LO QUE YA CONOCES
+   - ¿En qué se diferencia de un depósito bancario o una cuenta de ahorro?
+   - ¿Cuál sería el producto más parecido con el que compararlo?
+
+📝 RESUMEN EN 3 FRASES SENCILLAS:
+Explica qué es este producto, cómo funciona y para quién es adecuado en un máximo de 3 frases, como si se lo explicaras a un amigo en un café.
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 COMPRAR — ...
+🟡 MANTENER — ...
+🔴 EVITAR — ...`,
+
+basico3: `TIPO DE ANÁLISIS: ¿Cuáles son los riesgos reales?
+${cabecera}
+Quiero entender de forma honesta y clara todos los riesgos de este producto antes de invertir ni un euro. No suavices los riesgos, necesito la verdad.
+
+1. ¿CÓMO DE PELIGROSO ES? (sé directo)
+   - Ponle una nota de riesgo del 1 al 10 (1 = tranquilo como un depósito, 10 = como apostar en un casino)
+   - Explica en 2-3 frases por qué merece esa nota
+   - ¿Es más arriesgado que la media de productos similares? ¿Por qué?
+
+2. ¿PUEDO PERDER DINERO? (responde con total claridad)
+   - ¿Es posible perder parte o todo lo invertido? ¿En qué circunstancias concretas?
+   - ¿Cuánto cayó este producto en la última gran crisis (2008, COVID 2020, u otras)? Da porcentajes.
+   - ¿Cuánto tiempo tardó en recuperarse? (meses, años)
+   - ¿Podría llegar a valer cero? ¿Ha pasado algo así antes?
+
+3. LOS RIESGOS UNO POR UNO (explica cada uno con una frase sencilla)
+   - Riesgo de mercado: ¿cuánto puede oscilar el precio en un día o un año normal?
+   - Riesgo de divisa: ¿cotiza en otra moneda? ¿Podría perder valor aunque la inversión suba?
+   - Riesgo de concentración: ¿depende demasiado de pocas empresas, países o sectores?
+   - Riesgo de liquidez: ¿puedo vender en cualquier momento o puede ser difícil salir?
+   - Riesgo específico del producto: ¿deuda excesiva, problemas legales, competencia feroz, cambios regulatorios?
+
+4. SEÑALES DE ALARMA ACTUALES
+   - ¿Hay algo preocupante ahora mismo en este producto o en su sector?
+   - ¿Ha dado alguna noticia negativa reciente? ¿Alguna advertencia de analistas?
+
+5. ¿CÓMO PUEDO PROTEGERME?
+   - ¿Qué haría que este riesgo fuera más soportable? (diversificar, no invertir más de X%, etc.)
+   - ¿Tiene sentido combinarlo con otros activos más seguros?
+   - ¿A qué precio sería recomendable poner un stop loss (un límite de pérdida automático)?
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 COMPRAR (el riesgo está justificado) — ...
+🟡 MANTENER (hay riesgos pero no para salir corriendo) — ...
+🔴 EVITAR (los riesgos son demasiado altos para lo que ofrece) — ...`,
+
+basico4: `TIPO DE ANÁLISIS: ¿Es buen momento para entrar ahora?
+${cabecera}
+Quiero saber si ahora mismo, con el precio y el contexto actuales, tiene sentido comprar este producto. Sé directo y concreto.
+
+1. ¿DÓNDE ESTÁ EL PRECIO AHORA MISMO?
+   - ¿Cuál es el precio actual aproximado?
+   - ¿Está cerca de sus máximos (caro), de sus mínimos (barato) o en zona media?
+   - ¿Cuánto ha subido o bajado en los últimos 12 meses? Da un porcentaje.
+   - ¿Cuál fue el precio más alto y más bajo del último año?
+
+2. ¿ESTÁ CARO O BARATO AHORA?
+   - Compara el precio actual con su valoración histórica: ¿está más caro o más barato que de costumbre?
+   - ¿Qué dicen los analistas que cubren este producto? ¿Creen que puede subir o bajar?
+   - Si hay precio objetivo de analistas, ¿cuánto sube o baja desde el precio actual?
+
+3. ¿AYUDA O PERJUDICA EL ENTORNO ECONÓMICO ACTUAL?
+   - ¿Los tipos de interés actuales benefician o perjudican a este producto?
+   - ¿La inflación o el crecimiento económico actual es bueno o malo para él?
+   - ¿Hay algún riesgo externo ahora mismo (geopolítico, regulatorio, de sector) que deba tener en cuenta?
+
+4. ¿QUÉ ESTRATEGIA TIENE MÁS SENTIDO?
+   - ¿Comprar todo de golpe ahora o ir comprando poco a poco cada mes? (esto se llama DCA, explicarlo brevemente)
+   - ¿Cuánto tiempo mínimo debería mantener la inversión para que tenga sentido?
+   - ¿A qué precio sería una oportunidad clara de compra? ¿Y a partir de qué precio estaría demasiado caro?
+
+5. TRES ESCENARIOS POSIBLES EN LOS PRÓXIMOS 12 MESES
+   - 🟢 Escenario optimista: ¿qué tendría que pasar y cuánto podría subir?
+   - 🟡 Escenario neutral: ¿qué rentabilidad razonable se esperaría?
+   - 🔴 Escenario pesimista: ¿qué tendría que pasar y cuánto podría caer?
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 COMPRAR AHORA — ...
+🟡 ESPERAR (hay mejores momentos de entrada) — ...
+🔴 EVITAR (no es buen momento ni producto) — ...`,
+
+// ── VALORACIÓN ────────────────────────────────────────────
+val1: `TIPO DE ANÁLISIS: ¿Está barata o cara ahora mismo?
+${cabecera}
+Quiero saber si el precio actual de este producto es una ganga, está en su precio justo o está inflado. Explica cada concepto de forma sencilla.
+
+ANTES DE LOS NÚMEROS: explica en 2-3 frases qué significa "valorar" un producto financiero y por qué importa, usando una analogía cotidiana (por ejemplo: comparar el precio de un piso con el alquiler que genera).
+
+RATIOS DE VALORACIÓN (para cada uno: explica qué mide en una frase, da el valor actual, el histórico y el del sector, y di si está barato, normal o caro):
+
+• PER — "las veces que el precio incluye el beneficio anual"
+  Actual: | Histórico (5 años): | Sector: | ¿Barato (<15), normal (15-20) o caro (>25)?
+
+• PER Forward — "lo mismo pero con el beneficio que se espera el próximo año"
+  Actual: | ¿Mejor o peor que el PER actual? | Conclusión:
+
+• EV/EBITDA — "cuántos años de beneficio operativo vale la empresa entera"
+  Actual: | Histórico: | Sector: | ¿Atractivo (<10), normal (10-14) o caro (>15)?
+
+• Precio / Valor Contable — "cuánto pagas por cada euro de activos netos de la empresa"
+  Actual: | Histórico: | Sector: | Conclusión:
+
+• Precio / Ventas — "cuánto pagas por cada euro que factura la empresa"
+  Actual: | Histórico: | Sector: | Conclusión:
+
+CONTEXTO IMPORTANTE:
+• ¿Los analistas que cubren este producto creen que está barato o caro?
+• ¿Cuál es el precio objetivo medio de los analistas? ¿Cuánto sube o baja desde el precio actual?
+• ¿Está en el rango alto o bajo de valoración de los últimos 5 años?
+
+SALUD FINANCIERA BÁSICA (solo los puntos clave):
+• ¿Tiene más dinero en caja que deudas? (muy positivo si es así)
+• ¿Los beneficios están creciendo o cayendo?
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 BARATA (buen momento de entrada por valoración) — ...
+🟡 EN PRECIO JUSTO (ni ganga ni trampa) — ...
+🔴 CARA (el precio no justifica lo que ofrece ahora mismo) — ...`,
+
+val2: `TIPO DE ANÁLISIS: ¿Cuánto vale realmente? (precio justo)
+${cabecera}
+Quiero saber cuál es el precio "justo" de este producto, es decir, lo que debería valer según sus fundamentales, no lo que el mercado dice ahora mismo. Explícalo como si fuera tasar un piso: el precio de venta puede ser distinto al precio real.
+
+EXPLICACIÓN PREVIA (obligatoria):
+Explica en 3-4 frases sencillas qué es el "valor intrínseco" o "precio justo" de una inversión y por qué puede diferir del precio de mercado. Usa una analogía cotidiana.
+
+MÉTODOS DE VALORACIÓN (calcula con cada método y explica el resultado en lenguaje sencillo):
+
+1. DESCUENTO DE FLUJOS DE CAJA (DCF simplificado)
+   - Explica este método en 1 frase como si fuera para alguien sin formación financiera
+   - Valor intrínseco estimado: X €
+   - ¿Es fiable este método para este tipo de producto? ¿Por qué?
+
+2. VALORACIÓN POR MÚLTIPLOS HISTÓRICOS
+   - ¿A qué precio cotizaría si tuviera su PER y EV/EBITDA histórico promedio?
+   - Precio estimado por este método: X €
+
+3. PRECIO OBJETIVO DE ANALISTAS
+   - Media de analistas: X € | Mínimo: X € | Máximo: X €
+   - ¿Cuántos analistas lo cubren? ¿Hay mucha dispersión de opiniones?
+
+4. VALOR CONTABLE AJUSTADO
+   - ¿Cuánto vale la empresa si liquidamos todos sus activos y pagamos todas sus deudas?
+   - Valor estimado por este método: X €
+
+RESUMEN DE VALORACIONES:
+| Método | Precio estimado | Upside/Downside vs precio actual |
+Precio actual: X €
+Fair Value mínimo: X € | Fair Value central: X € | Fair Value máximo: X €
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 INFRAVALORADA (cotiza por debajo de su valor real — oportunidad) — ...
+🟡 EN PRECIO JUSTO (cotiza en línea con lo que vale) — ...
+🔴 SOBREVALORADA (cotiza por encima de lo que vale — riesgo de corrección) — ...`,
+
+val3: `TIPO DE ANÁLISIS: Comparativa de múltiplos de valoración
+${cabecera}
+Quiero analizar todos los ratios de valoración de este producto y entender qué me dicen. Para cada ratio: explica primero qué mide en una frase sencilla, luego da los datos, y termina con una conclusión clara.
+
+MÚLTIPLOS PRINCIPALES (valor actual vs histórico 5 años vs media del sector):
+
+1. PER — "Precio dividido entre el beneficio por acción"
+   - En palabras simples: "cuántos años de beneficios pagas al precio actual"
+   - Actual: | Histórico 5 años: | Media sector: | ¿Barato (<15) / Normal (15-20) / Caro (>25)?
+   - Conclusión en 1 frase:
+
+2. EV/EBITDA — "Valor total de la empresa dividido entre su beneficio operativo"
+   - En palabras simples: "en cuántos años la empresa pagaría lo que vale con sus beneficios operativos"
+   - Actual: | Histórico: | Sector: | ¿Atractivo (<8) / Normal (8-12) / Caro (>15)?
+   - Conclusión en 1 frase:
+
+3. P/VC — "Precio dividido entre el valor contable por acción"
+   - En palabras simples: "cuánto pagas por cada euro de activos netos de la empresa"
+   - Actual: | Histórico: | Sector: | Cerca de 1 es bueno, muy por encima puede ser caro
+   - Conclusión en 1 frase:
+
+4. P/Ventas — "Precio dividido entre los ingresos por acción"
+   - En palabras simples: "cuánto pagas por cada euro que la empresa factura"
+   - Actual: | Histórico: | Sector: | Conclusión:
+
+5. PEG — "PER dividido entre el crecimiento esperado de beneficios"
+   - En palabras simples: "si el PER está justificado por el ritmo de crecimiento de la empresa"
+   - Valor: | ¿Menor de 1 = barato dado su crecimiento / Mayor de 2 = caro?
+   - Conclusión en 1 frase:
+
+COMPARATIVA CON COMPETIDORES PRINCIPALES:
+¿Cómo están estos múltiplos en comparación con sus 2-3 competidores más directos? ¿Sale bien o mal parada?
+
+CONCLUSIÓN GLOBAL DE LOS MÚLTIPLOS:
+¿Los múltiplos en conjunto pintan un cuadro de inversión atractiva, justa o cara? ¿Hay algún ratio que destaque especialmente (para bien o para mal)?
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 BARATA POR MÚLTIPLOS (los ratios apoyan la compra) — ...
+🟡 EN PRECIO JUSTO (los múltiplos no gritan ni compra ni venta) — ...
+🔴 CARA POR MÚLTIPLOS (los ratios no justifican el precio actual) — ...`,
+
+val4: `TIPO DE ANÁLISIS: ¿Está infravalorada? ¿Es una oportunidad oculta?
+${cabecera}
+Quiero saber si el mercado está equivocado y este producto vale más de lo que cotiza ahora. Esto es lo que buscan los inversores "value". Explícalo en lenguaje sencillo.
+
+EXPLICACIÓN PREVIA (obligatoria):
+¿Qué significa que una empresa esté "infravalorada"? Explícalo con una analogía cotidiana (por ejemplo: "Es como encontrar un piso en una zona buena que se vende barato porque el dueño tiene prisa por vender").
+
+ANÁLISIS DEL DESCUENTO / PRIMA:
+• Precio actual: X €
+• Fair Value estimado (varios métodos): X €
+• Diferencia: ¿cotiza con descuento o prima? ¿Cuánto en porcentaje?
+• ¿Un descuento superior al 20% se considera una señal clara de infravaloración?
+
+LO QUE DICEN LOS ANALISTAS:
+• Precio objetivo medio: X € | Mínimo: X € | Máximo: X €
+• ¿Cuántos recomiendan comprar / mantener / vender?
+• ¿La mayoría cree que está infravalorada?
+
+PUNTUACIÓN DE SALUD FINANCIERA (del 1 al 5 en cada área, con una frase explicativa):
+• Rentabilidad (¿gana dinero y con buenos márgenes?): /5 — [frase]
+• Crecimiento (¿los ingresos y beneficios crecen?): /5 — [frase]
+• Solidez financiera (¿poca deuda, mucha caja?): /5 — [frase]
+• Generación de caja real (¿el beneficio se convierte en dinero real?): /5 — [frase]
+• PUNTUACIÓN TOTAL: /20
+
+SEÑALES POSITIVAS QUE APOYAN LA INFRAVALORACIÓN (marca las que apliquen y explica brevemente):
+☐ Tiene más dinero en caja que deuda
+☐ Los beneficios operativos crecen año a año
+☐ El dividendo crece o es muy sólido
+☐ Los propios directivos están comprando acciones de su empresa
+☐ La empresa está recomprando acciones propias (señal de que creen que están baratas)
+☐ Cotiza cerca de mínimos de 52 semanas sin una razón fundamental que lo justifique
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 INFRAVALORADA (el mercado no ha visto aún su valor real — oportunidad) — ...
+🟡 EN PRECIO JUSTO (cotiza donde debería, sin gran margen de seguridad) — ...
+🔴 SOBREVALORADA (el mercado ya ha puesto en precio demasiadas expectativas) — ...`,
+
+// ── SALUD FINANCIERA ──────────────────────────────────────
+sal1: `TIPO DE ANÁLISIS: ¿Cómo van los resultados de la empresa?
+${cabecera}
+Quiero entender si esta empresa gana dinero, si lo gana cada vez más y si la tendencia es buena o preocupante. Explícamelo sin tecnicismos.
+
+EXPLICACIÓN PREVIA (obligatoria):
+Explica en 2-3 frases qué es la "cuenta de resultados" de una empresa usando una analogía sencilla (por ejemplo: "Es como el extracto mensual de un negocio: lo que entra, lo que sale y lo que queda al final").
+
+DATOS DE LOS ÚLTIMOS 5 AÑOS (tabla si es posible):
+Año | Ingresos (ventas) | EBITDA* | Beneficio neto | Flujo de caja operativo | Margen EBITDA%
+*EBITDA: explícalo en una frase entre paréntesis la primera vez que lo uses
+
+ANÁLISIS DE TENDENCIAS (responde cada punto con SÍ/NO y una explicación breve):
+• ¿Los ingresos crecen año a año? ¿A qué ritmo aproximado?
+• ¿El beneficio operativo (EBITDA) mejora? ¿Los márgenes se amplían o se comprimen?
+• ¿El beneficio neto crece al mismo ritmo que el EBITDA? (si no, explica por qué en términos sencillos)
+• ¿La empresa genera dinero en caja de forma consistente?
+
+CALIDAD DEL BENEFICIO — ¿es real o "maquillado"?
+• ¿El beneficio que aparece en papel se convierte en dinero real en la caja? (compara beneficio neto vs flujo de caja)
+• ¿Hay resultados "extraordinarios" que inflen las cifras de forma puntual?
+• Explica con una frase si el beneficio es de "buena calidad" o hay que mirarlo con lupa
+
+COMPARACIÓN CON EL SECTOR:
+• ¿Crece más o menos rápido que sus principales competidores?
+• ¿Sus márgenes son mejores o peores que la media del sector?
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 COMPRAR (resultados sólidos y crecientes que justifican la inversión) — ...
+🟡 MANTENER (resultados aceptables pero sin grandes catalizadores) — ...
+🔴 VENDER / EVITAR (resultados preocupantes o en deterioro) — ...`,
+
+sal2: `TIPO DE ANÁLISIS: ¿Cuánta deuda tiene y es un problema?
+${cabecera}
+Quiero entender si la deuda de esta empresa es un problema real o está bajo control. Sé directo: si la situación es preocupante, dilo claramente.
+
+EXPLICACIÓN PREVIA (obligatoria):
+Explica qué es la "deuda neta" con una analogía sencilla (por ejemplo: "Es como si la empresa tuviera una hipoteca de 200.000€ pero 50.000€ ahorrados en el banco: su deuda real son 150.000€").
+
+DATOS DE DEUDA:
+• Deuda total: X €
+• Dinero disponible (caja y equivalentes): X €
+• Deuda neta (deuda total - caja): X €
+• EBITDA anual (beneficio operativo): X €
+• Ratio Deuda Neta / EBITDA: X veces
+
+INTERPRETACIÓN DEL RATIO (usa esta escala y di claramente en cuál está):
+🟢 Menos de 1 año de EBITDA: EXCELENTE — podría pagar toda la deuda con menos de un año de beneficios operativos
+🟢 Entre 1 y 2 años: BUENO — situación cómoda y controlada
+🟡 Entre 2 y 3 años: ACEPTABLE — hay que vigilarlo, pero no es preocupante
+🟠 Entre 3 y 4 años: PREOCUPANTE — la deuda limita su capacidad de crecer e invertir
+🔴 Más de 4 años: PELIGROSO — riesgo real de problemas para pagar, puede condicionar toda la empresa
+
+¿PUEDE PAGAR LOS INTERESES SIN PROBLEMA?
+• ¿Cuánto paga al año en intereses?
+• ¿Cuántas veces cubre el EBITDA el pago de intereses? (si es menos de 3 veces, es una señal de alarma)
+
+¿CUÁNDO VENCE LA DEUDA?
+• ¿Tiene deudas grandes que vencen pronto? ¿Tiene capacidad de refinanciarlas?
+
+¿PONE EN PELIGRO EL DIVIDENDO?
+• ¿La carga de la deuda obliga a reducir o eliminar el dividendo?
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 COMPRAR (deuda controlada, no es un problema) — ...
+🟡 MANTENER (deuda vigilable pero no urgente) — ...
+🔴 VENDER / EVITAR (la deuda es un problema real que amenaza la inversión) — ...`,
+
+sal3: `TIPO DE ANÁLISIS: ¿Tiene más dinero que deudas?
+${cabecera}
+Quiero saber si esta empresa está en una posición financiera muy fuerte: con más dinero en el banco que deudas. Esto es lo que los inversores llaman "caja neta positiva" y es una señal excelente.
+
+EXPLICACIÓN PREVIA (obligatoria):
+Explica con una analogía sencilla qué significa tener "caja neta positiva" (por ejemplo: "Imagina que debes 100€ pero tienes 150€ en la cartera. Aunque te exigieran pagar todo ahora mismo, aún te sobrarían 50€. Eso es caja neta positiva, y es una posición financiera muy cómoda").
+
+LOS NÚMEROS:
+• Deuda total de la empresa: X €
+• Dinero disponible (caja + inversiones a corto plazo): X €
+• Caja neta (dinero - deuda): X €
+  → Si es POSITIVA (más dinero que deuda): ✅ Situación muy sana
+  → Si es NEGATIVA (más deuda que dinero): situación normal, pero hay que ver cuánto
+
+¿POR QUÉ IMPORTA TANTO TENER MÁS DINERO QUE DEUDAS?
+Explica de forma sencilla las 4 ventajas principales que tiene una empresa en esta situación:
+✓ Puede pagar su deuda en cualquier momento sin depender de nadie
+✓ Puede mantener o aumentar el dividendo incluso si el negocio va mal una temporada
+✓ Puede comprar otras empresas o invertir sin pedir dinero prestado
+✓ Aguanta mejor las crisis económicas que sus competidores endeudados
+
+TENDENCIA (¿la posición financiera mejora o empeora?):
+• ¿La caja ha crecido o disminuido en los últimos 3 años?
+• ¿Genera suficiente dinero cada año para mantener o mejorar esta posición?
+• ¿Ha habido compras, inversiones grandes o dividendos que hayan reducido la caja?
+
+¿ES NORMAL EN SU SECTOR?
+• ¿Las empresas de este sector suelen tener mucha o poca deuda?
+• ¿La posición financiera de esta empresa es mejor o peor que la media de su sector?
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 COMPRAR (posición financiera muy sólida, una fortaleza diferencial) — ...
+🟡 MANTENER (posición financiera normal, sin ser una ventaja ni un riesgo) — ...
+🔴 VENDER / EVITAR (la situación financiera es una debilidad importante) — ...`,
+
+sal4: `TIPO DE ANÁLISIS: ¿Están "maquillando" las cuentas?
+${cabecera}
+Quiero saber si los números de esta empresa son de fiar o si hay señales de que se están haciendo trampas contables para que todo parezca mejor de lo que es. Sé directo: si hay señales de alarma, dilo sin rodeos.
+
+EXPLICACIÓN PREVIA (obligatoria):
+Explica en 3-4 frases qué es la "manipulación contable" en lenguaje muy sencillo y con una analogía (por ejemplo: "Es como si un restaurante incluyera en sus ingresos los pedidos que aún no ha cobrado, para que sus cuentas parezcan mejores de lo que son. No siempre es ilegal, pero sí es una señal de alarma para el inversor").
+
+SEÑALES A INVESTIGAR (para cada una: di si hay señal de alarma o no, y explica por qué en 1-2 frases):
+
+1. ¿EL BENEFICIO CONTABLE Y EL DINERO REAL SE MUEVEN IGUAL?
+   - ¿El EBITDA crece pero el flujo de caja libre no? (señal de alarma importante)
+   - Diferencia entre EBITDA y flujo de caja real: ¿es grande? ¿Se explica de forma razonable?
+
+2. ¿HAN CAMBIADO LAS "REGLAS DEL JUEGO" CONTABLES?
+   - ¿Ha cambiado la forma de calcular las amortizaciones recientemente?
+   - ¿Capitaliza gastos que antes iban directamente a pérdidas? (hace que el beneficio parezca mayor)
+   - ¿Hay "gastos extraordinarios" que se repiten año tras año? (si son "extraordinarios", no deberían repetirse)
+
+3. ¿JUEGAN CON LAS PROVISIONES?
+   - ¿Las provisiones (dinero reservado para problemas futuros) suben o bajan de forma inusual?
+   - ¿Han "recuperado" provisiones anteriores para inflar el beneficio de este año?
+
+4. ¿SUS MÁRGENES SON DEMASIADO BUENOS PARA SER VERDAD?
+   - ¿El margen de beneficio operativo es muy superior al de sus competidores sin una razón clara?
+   - Si gana mucho más que todos los demás, ¿hay una explicación sólida o es sospechoso?
+
+5. ¿EL AUDITOR HA DICHO ALGO?
+   - ¿El informe de auditoría tiene advertencias o "salvedades"? (señal de alarma seria)
+   - ¿Ha cambiado de empresa auditora recientemente sin una razón clara?
+
+6. ¿LOS CLIENTES PAGAN CADA VEZ MÁS TARDE?
+   - ¿Los cobros a clientes tardan cada vez más (período de cobro en aumento)?
+   - ¿El inventario crece más rápido que las ventas? (puede indicar que no venden tanto como dicen)
+
+RESUMEN DE SEÑALES DE ALARMA:
+¿Cuántas señales de alarma has encontrado? ¿Son graves o leves?
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 COMPRAR (cuentas limpias, el beneficio es de calidad y de fiar) — ...
+🟡 MANTENER (algunas señales menores que vale la pena vigilar, pero nada grave) — ...
+🔴 VENDER / EVITAR (hay señales de alarma contables serias que ponen en duda los resultados) — ...`,
+
+// ── MACRO Y RENTA FIJA ────────────────────────────────────
+macro1: `TIPO DE ANÁLISIS: ¿Cómo le afectan los cambios en los tipos de interés?
+${cabecera}
+Quiero entender cómo afectan las subidas y bajadas de tipos de interés a esta inversión concreta. Explícamelo desde cero.
+
+EXPLICACIÓN PREVIA (obligatoria):
+Explica en 3-4 frases muy sencillas qué son los "tipos de interés" y por qué afectan a las inversiones. Usa una analogía cotidiana (por ejemplo: "Los tipos de interés son como el precio del dinero. Cuando el banco central los sube, pedir dinero prestado se encarece y eso afecta a las empresas y a los bonos de formas muy distintas").
+
+¿QUÉ TIPO DE PRODUCTO ES? (esto determina cómo le afectan los tipos)
+
+SI ES UN BONO O FONDO DE BONOS (renta fija):
+• ¿Cuánto dura este bono o la duración media del fondo? (número de años)
+  → Explica con un ejemplo: "Si la duración es 5 años y los tipos bajan 1%, el precio sube aproximadamente un 5%"
+• Rendimiento actual (lo que paga cada año en porcentaje): X%
+• ¿Es más atractivo que un depósito bancario ahora mismo?
+• Si los tipos bajan como se espera: ¿cuánto podría ganar el inversor aproximadamente?
+• Si los tipos suben en vez de bajar: ¿cuánto podría perder?
+
+SI ES UNA ACCIÓN O ETF DE BOLSA (renta variable):
+• ¿A este sector le benefician o perjudican los tipos bajos?
+  (Sectores que suelen beneficiarse: inmobiliario, utilities, tecnología de crecimiento)
+  (Sectores que suelen perjudicarse con tipos bajos: bancos, aseguradoras)
+• ¿Tiene mucha deuda? (si es así, los tipos bajos reducen sus costes financieros — positivo)
+• ¿Hace que la valoración actual parezca más atractiva con tipos más bajos?
+
+CONTEXTO ACTUAL DE TIPOS:
+• ¿Dónde están los tipos ahora mismo y hacia dónde van según los bancos centrales?
+• ¿Ya ha descontado el mercado las bajadas esperadas en el precio actual?
+• ¿Qué pasaría si los tipos no bajan tanto como se espera o incluso suben?
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 COMPRAR (el entorno de tipos beneficia claramente a este producto) — ...
+🟡 MANTENER (los tipos tienen un impacto neutral o mixto) — ...
+🔴 VENDER / EVITAR (el entorno de tipos actual es desfavorable para este producto) — ...`,
+
+macro2: `TIPO DE ANÁLISIS: ¿Cómo le afecta la situación económica general?
+${cabecera}
+Quiero entender si el entorno económico actual (inflación, tipos, crecimiento, geopolítica) ayuda o perjudica a esta inversión. Explícamelo de forma clara y práctica.
+
+EXPLICACIÓN PREVIA (obligatoria):
+Explica en 2-3 frases por qué el entorno macroeconómico importa para las inversiones. Usa una analogía sencilla (por ejemplo: "Es como un barco en el mar: incluso el mejor barco lo tiene más difícil cuando hay tormenta. El contexto macroeconómico es el estado del mar").
+
+SITUACIÓN ECONÓMICA ACTUAL (sé concreto con datos actuales):
+• Inflación: ¿en qué nivel está y hacia dónde va? ¿Es buena o mala para este producto?
+• Tipos de interés: ¿están subiendo, bajando o estables? ¿Eso beneficia o perjudica a este producto?
+• Crecimiento económico: ¿hay expansión, ralentización o riesgo de recesión?
+• Empleo y consumo: ¿la gente gasta más o menos? ¿Eso afecta a este sector?
+
+IMPACTO DIRECTO EN ESTE PRODUCTO:
+• ¿Este sector es "defensivo" (aguanta bien las crisis, como alimentación o salud) o "cíclico" (muy sensible a la economía, como lujo o construcción)? Explícalo con una frase.
+• ¿La inflación actual encarece sus costes, mejora sus ingresos o ambas cosas?
+• ¿Los tipos actuales son un viento a favor o en contra?
+
+RIESGOS GEOPOLÍTICOS Y GLOBALES:
+• ¿Hay conflictos, sanciones, aranceles o tensiones comerciales que afecten a este producto o sector?
+• ¿Depende de materias primas, energía o suministros que puedan encarecerse o escasear?
+• ¿Opera en países con riesgo político o regulatorio elevado?
+
+LO QUE HACEN LOS GRANDES INVERSORES:
+• ¿Los grandes fondos e instituciones están comprando o vendiendo este tipo de activo?
+• ¿Hay flujos de dinero entrando o saliendo de este sector?
+
+⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
+🟢 COMPRAR (el entorno macro es favorable y actúa como viento a favor) — ...
+🟡 MANTENER (el entorno macro es neutral, ni impulsa ni frena especialmente) — ...
+🔴 VENDER / EVITAR (el entorno macro actual es claramente desfavorable para este producto) — ...`,
+
+// ── ANÁLISIS COMPLETO ─────────────────────────────────────
+completo: `TIPO DE ANÁLISIS: ANÁLISIS COMPLETO — todo lo que necesito saber
+${cabecera}
+Realiza un análisis exhaustivo y completo de este producto. Para cada sección, usa siempre lenguaje sencillo. Si hay que usar un término técnico, explícalo justo después entre paréntesis. El objetivo es que alguien sin ningún conocimiento financiero pueda leer esto y tomar una decisión informada.
+
+━━━ 1. ¿QUÉ ES ESTE PRODUCTO? ━━━
+• Nombre completo, tipo de activo, sector, país, moneda
+• ¿A qué se dedica esta empresa o en qué invierte este fondo/ETF? Explícalo en 2-3 frases como si fuera para alguien que nunca ha invertido
+• Analogía cotidiana: compara la empresa o producto con algo del día a día
+
+━━━ 2. ¿PARA QUÉ TIPO DE PERSONA ES? ━━━
+• Nivel de riesgo del 1 al 10 con explicación del porqué
+• ¿Es apto para principiantes? SÍ o NO, y explica por qué en 2 frases
+• Tiempo mínimo recomendado antes de ver resultados
+
+━━━ 3. ¿GANA DINERO? — Resultados de los últimos 5 años ━━━
+• Tabla: Año | Ingresos | Beneficio operativo (EBITDA) | Beneficio neto | Flujo de caja
+• ¿La tendencia es positiva, estable o preocupante? Explícalo en 2 frases sencillas
+• ¿El dinero que gana en papel se convierte en dinero real en caja?
+
+━━━ 4. ¿ESTÁ BARATO O CARO AHORA? — Valoración ━━━
+• PER, EV/EBITDA, P/VC, P/Ventas: valor actual vs histórico vs sector, con conclusión en 1 frase cada uno
+• Precio justo estimado y diferencia con el precio actual (upside o downside en %)
+• ¿Qué dicen los analistas? Precio objetivo y recomendación mayoritaria
+
+━━━ 5. ¿TIENE DEUDAS PROBLEMÁTICAS? — Situación financiera ━━━
+• Deuda neta / EBITDA: valor y qué significa (usa la escala: <1 excelente, 1-2 bueno, 2-3 vigilar, 3-4 preocupante, >4 peligroso)
+• ¿Tiene más dinero en caja que deudas? Responde con SÍ/NO y explica el impacto
+• Calificación crediticia si existe
+
+━━━ 6. ¿ES RENTABLE? — Márgenes y dividendo ━━━
+• ROE (rentabilidad sobre capital), márgenes operativo y neto: ¿están por encima o por debajo del sector?
+• Dividendo: ¿reparte? ¿Cuánto en % sobre el precio actual? ¿Es sostenible o está en riesgo?
+• ¿El dividendo ha crecido, se ha mantenido o ha recortado en los últimos años?
+
+━━━ 7. ¿QUÉ PODRÍA SALIR MAL? — Riesgos principales ━━━
+• Los 4-5 riesgos principales, explicados en lenguaje cotidiano
+• En el peor caso realista, ¿cuánto podría caer? Da un porcentaje aproximado
+• ¿Hay algo preocupante ocurriendo ahora mismo?
+
+━━━ 8. ¿ES BUEN MOMENTO PARA ENTRAR? — Contexto actual ━━━
+• ¿Está el precio cerca de máximos, mínimos o en zona media histórica?
+• ¿El entorno económico actual (tipos, inflación, crecimiento) favorece o perjudica a este producto?
+• ¿Hay noticias recientes relevantes (positivas o negativas) que afecten a la decisión?
+
+━━━ 9. VEREDICTO FINAL ━━━
+Termina con este bloque exacto, sin abreviarlo:
+
+⚠️ DECISIÓN RECOMENDADA:
+[Elige UNO]
+🟢 COMPRAR — [Justificación en 3 frases sencillas. Incluye: por qué ahora, qué tiene que cumplirse para que funcione, y quién debería comprar]
+🟡 MANTENER — [Justificación en 3 frases sencillas. Incluye: por qué no vender todavía, qué hay que vigilar, y cuándo reconsiderar]
+🔴 VENDER / EVITAR — [Justificación en 3 frases sencillas. Incluye: cuál es el problema principal, qué alternativa es mejor, y en qué circunstancias podría volver a ser interesante]
+
+📊 DATOS CLAVE DEL VEREDICTO:
+• Precio objetivo a 12 meses: X €
+• Stop loss sugerido (precio al que salir para limitar pérdidas): X €
+• Estrategia de entrada recomendada: [compra única / compras periódicas mensuales (DCA)]
+• Perfil de inversor para el que es adecuado: [describe en 1 frase]
+
+📝 RESUMEN PARA ALGUIEN SIN CONOCIMIENTOS FINANCIEROS:
+Escribe 3 frases que expliquen qué es el producto, cómo está ahora y qué hacer, como si se lo explicaras a un familiar en una cena.`
+    };
+
+    const nombresTipos = {
+        basico1:'¿Buena inversión para mí?', basico2:'¿Qué es este producto?',
+        basico3:'¿Cuáles son los riesgos?', basico4:'¿Buen momento para entrar?',
+        val1:'¿Está barata o cara?', val2:'Fair Value', val3:'Múltiplos',
+        val4:'¿Infravalorada?', sal1:'Resultados empresariales', sal2:'Deuda',
+        sal3:'¿Más dinero que deuda?', sal4:'¿Cuentas manipuladas?',
+        macro1:'Impacto bajada tipos', macro2:'Contexto macro', completo:'Análisis completo'
+    };
+
+    const promptEl = document.getElementById('promptGenerado');
+    promptEl.innerText = PROMPTS[tipo] || '—';
+    promptEl.dataset.tipo = nombresTipos[tipo] || tipo;
+    promptEl.scrollIntoView({behavior:'smooth', block:'nearest'});
+    toast('📋 Prompt listo — cópialo y pégalo en la IA', 'info');
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    actualizarContador();
+    actualizarBadge();
+});
+</script>
+</body>
+</html>
