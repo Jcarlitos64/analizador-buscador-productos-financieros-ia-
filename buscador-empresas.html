@@ -31,7 +31,6 @@
             min-height: 100vh;
         }
 
-        /* ── FONDO ── */
         body::before {
             content:'';
             position: fixed; inset: 0; z-index: 0;
@@ -42,7 +41,6 @@
             pointer-events: none;
         }
 
-        /* ── CABECERA ── */
         .cabecera {
             position: sticky; top: 0; z-index: 100;
             background: rgba(13,13,26,.85);
@@ -70,10 +68,8 @@
         }
         .btn-cab:hover { background: rgba(255,255,255,.12); color: var(--texto); }
 
-        /* ── LAYOUT ── */
         .contenedor { position:relative; z-index:1; max-width:1300px; margin:0 auto; padding:28px 24px 60px; }
 
-        /* ── PASOS / FLUJO ── */
         .flujo {
             display: flex; align-items: center; gap: 0;
             margin-bottom: 32px; overflow-x: auto;
@@ -97,12 +93,10 @@
         .paso-item.completado .paso-num { background: rgba(6,214,160,.2); border-color: var(--verde); color: var(--verde); }
         .paso-flecha { color: rgba(255,255,255,.15); font-size: 16px; padding: 0 4px; }
 
-        /* ── SECCIONES ── */
         .seccion { display:none; }
         .seccion.activa { display:block; animation: fadeIn .4s ease; }
         @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
-        /* ── CARD ── */
         .card {
             background: var(--card);
             border: 1px solid var(--borde);
@@ -116,7 +110,6 @@
         }
         .card-desc { font-size: 13px; color: var(--texto2); line-height: 1.6; margin-bottom: 22px; }
 
-        /* ── GRID CRITERIOS ── */
         .criterios-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 16px;
@@ -139,7 +132,6 @@
         }
         .criterio-ico { font-size: 18px; }
 
-        /* Toggle switch */
         .toggle { position:relative; width:36px; height:20px; cursor:pointer; }
         .toggle input { opacity:0; width:0; height:0; }
         .toggle-slider {
@@ -155,7 +147,6 @@
         .toggle input:checked + .toggle-slider { background: var(--azul); }
         .toggle input:checked + .toggle-slider::before { transform:translateX(16px); }
 
-        /* Slider range */
         .slider-wrap { margin-top:4px; }
         .slider-labels { display:flex; justify-content:space-between; font-size:11px; color:var(--texto2); margin-bottom:6px; }
         .slider-val { font-size:13px; font-weight:700; color:var(--azul); text-align:right; margin-bottom:6px; }
@@ -170,7 +161,6 @@
         }
         input[type=range]:disabled { opacity:.3; cursor:default; }
 
-        /* Select */
         .select-wrap select {
             width:100%; padding:9px 12px;
             background: rgba(255,255,255,.06); border: 1px solid var(--borde);
@@ -182,7 +172,6 @@
         .select-wrap select option { background: #1a1a2e; }
         .select-wrap select:disabled { opacity:.3; cursor:default; }
 
-        /* ── FILTROS ADICIONALES ── */
         .filtros-extra {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 14px; margin-top: 20px;
@@ -193,7 +182,6 @@
             display: block; margin-bottom: 7px;
         }
 
-        /* ── BOTÓN GENERAR ── */
         .btn-generar {
             width:100%; padding:16px;
             background: var(--grad); color:white; border:none;
@@ -211,7 +199,6 @@
         .btn-generar:hover { transform:translateY(-2px); box-shadow:0 14px 40px rgba(67,97,238,.5); }
         .btn-generar:hover::before { opacity:1; }
 
-        /* ── ÁREA PROMPT ── */
         .prompt-area {
             background: rgba(255,255,255,.02);
             border: 1px solid rgba(67,97,238,.25);
@@ -233,7 +220,6 @@
         }
         #promptTexto:focus { border-color: rgba(67,97,238,.5); }
 
-        /* IAs grid */
         .ia-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:16px; }
         .btn-ia {
             padding:10px 6px; border:none; border-radius:10px; cursor:pointer;
@@ -263,7 +249,6 @@
         .btn-secundario-sm { background:rgba(255,255,255,.07); color:var(--texto); border:1px solid var(--borde); }
         .btn-secundario-sm:hover { background:rgba(255,255,255,.12); }
 
-        /* ── SECCIÓN 2: PEGAR JSON ── */
         .instrucciones {
             background: rgba(6,214,160,.06);
             border: 1px solid rgba(6,214,160,.2);
@@ -297,7 +282,6 @@
             border-radius:8px; font-size:13px; color:#ef233c;
         }
 
-        /* ── SECCIÓN 3: REJILLA ── */
         .rejilla-cabecera {
             display:flex; align-items:center; justify-content:space-between;
             margin-bottom:20px; flex-wrap:wrap; gap:12px;
@@ -315,7 +299,6 @@
         }
         .buscador-rejilla:focus { border-color:rgba(67,97,238,.5); }
 
-        /* Tabla */
         .tabla-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--borde); }
         table { width:100%; border-collapse:collapse; font-size:13px; }
         thead { background: rgba(255,255,255,.04); }
@@ -387,7 +370,6 @@
         }
         .btn-analizar:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(67,97,238,.4); }
 
-        /* Empty state */
         .empty-state {
             text-align:center; padding:60px 20px;
             color:var(--texto2);
@@ -396,7 +378,6 @@
         .empty-state h3 { font-family:'Syne',sans-serif; font-size:18px; margin-bottom:8px; color:rgba(255,255,255,.3); }
         .empty-state p { font-size:13px; line-height:1.6; }
 
-        /* ── NOTA RAZÓN ── */
         .nota-razon {
             background:rgba(255,255,255,.02); border:1px solid var(--borde);
             border-radius:10px; padding:12px 16px;
@@ -406,7 +387,6 @@
         .nota-razon summary { font-weight:600; color:rgba(255,255,255,.5); cursor:pointer; list-style:none; display:flex; align-items:center; gap:6px; }
         .nota-razon summary::before { content:'💬'; }
 
-        /* ── TOAST ── */
         #toast {
             position:fixed; bottom:24px; right:24px;
             background:rgba(13,13,26,.95); border:1px solid rgba(255,255,255,.1);
@@ -418,7 +398,8 @@
         #toast.error { border-color:rgba(239,35,60,.4); color:var(--rojo); }
         #toast.info  { border-color:rgba(67,97,238,.4); color:#a78bfa; }
 
-        /* ── RESPONSIVE ── */
+
+
         @media(max-width:768px) {
             .criterios-grid { grid-template-columns:1fr; }
             .ia-grid { grid-template-columns:repeat(4,1fr); }
@@ -438,7 +419,7 @@
         <h1>🔍 Buscador de Empresas
             <small>Encuentra oportunidades con IA</small>
         </h1>
-        <span class="badge">BETA</span>
+        <span class="badge">v3.5</span>
     </div>
     <div style="display:flex;gap:8px;">
         <a href="herramienta-analisis-ia.html" class="btn-cab">📊 Herramienta principal</a>
@@ -469,7 +450,10 @@
     <div class="seccion activa" id="sec-1">
 
         <div class="card">
-            <div class="card-titulo">⚙️ Configura tu búsqueda</div>
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;">
+                <div class="card-titulo" style="margin-bottom:0;">⚙️ Configura tu búsqueda</div>
+                <button onclick="restablecerDefectos()" style="flex-shrink:0;padding:6px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:var(--texto2);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(255,255,255,.12)';this.style.color='white'" onmouseout="this.style.background='rgba(255,255,255,.06)';this.style.color='var(--texto2)'">↺ Valores por defecto</button>
+            </div>
             <div class="card-desc">Selecciona los criterios que quieres que la IA use para buscar empresas con potencial. Activa solo los que te interesen — cuantos más actives, más específica será la búsqueda.</div>
 
             <div class="criterios-grid" id="criteriosGrid">
@@ -541,6 +525,65 @@
                         <div style="margin-top:12px;" class="slider-labels"><span>Crecimiento EBITDA mínimo (anual)</span></div>
                         <div class="slider-val" id="val-crecebitda">EBITDA creciendo ≥ <strong>5%</strong>/año</div>
                         <input type="range" id="sl-crecebitda" min="0" max="30" value="5" oninput="updateSlider('crecebitda',this.value,'EBITDA creciendo ≥ ','%/año')">
+                    </div>
+                </div>
+
+                <!-- COMISIONES (NUEVO) -->
+                <div class="criterio-item activo" id="crit-comisiones">
+                    <div class="criterio-cab">
+                        <div class="criterio-nombre"><span class="criterio-ico">💰</span> Comisiones bajas</div>
+                        <label class="toggle"><input type="checkbox" id="chk-comisiones" checked onchange="toggleCriterio('comisiones')"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="slider-wrap" id="wrap-comisiones">
+                        <div class="slider-labels"><span>TER máximo (fondos/ETFs)</span></div>
+                        <div class="slider-val" id="val-ter">TER ≤ <strong>0.5%</strong></div>
+                        <input type="range" id="sl-ter" min="0.1" max="2" step="0.1" value="0.5" oninput="updateSlider('ter',this.value,'TER ≤ ','%')">
+                        
+                        <div style="margin-top:14px;">
+                            <div class="slider-labels"><span>Comisión de gestión máxima</span></div>
+                            <div class="slider-val" id="val-gestion">Com. gestión ≤ <strong>1%</strong></div>
+                            <input type="range" id="sl-gestion" min="0.1" max="2.5" step="0.1" value="1" oninput="updateSlider('gestion',this.value,'Com. gestión ≤ ','%')">
+                        </div>
+                        
+                        <div style="margin-top:14px;">
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="chk-sincomisionexito" style="accent-color:var(--azul);width:16px;height:16px;" checked>
+                                <span>Evitar comisiones de éxito</span>
+                            </label>
+                        </div>
+                        <div style="margin-top:14px;padding:10px 12px;background:rgba(6,214,160,.06);border:1px solid rgba(6,214,160,.2);border-radius:8px;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;">
+                            💡 <strong style="color:#06d6a0;">Coste total estimado:</strong>
+                            <span id="coste-total-preview" style="color:#06d6a0;font-weight:700;margin-left:4px;">0.5% + 1.0% = 1.5%/año</span>
+                            <br>Un fondo con 1.5% de costes necesita rendir 1.5% más que uno sin costes para igualarlo.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DÓNDE COMPRAR (NUEVO) -->
+                <div class="criterio-item activo" id="crit-donde">
+                    <div class="criterio-cab">
+                        <div class="criterio-nombre"><span class="criterio-ico">🏪</span> Dónde comprar</div>
+                        <label class="toggle"><input type="checkbox" id="chk-donde" checked onchange="toggleCriterio('donde')"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="slider-wrap" id="wrap-donde">
+                        <div style="margin-bottom:12px;">
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="chk-myinvestor" style="accent-color:var(--azul);width:16px;height:16px;" checked>
+                                <span>Disponible en MyInvestor</span>
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="chk-indexa" style="accent-color:var(--azul);width:16px;height:16px;" checked>
+                                <span>Disponible en Indexa Capital</span>
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="chk-finizens" style="accent-color:var(--azul);width:16px;height:16px;" checked>
+                                <span>Disponible en Finizens</span>
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="chk-degiro" style="accent-color:var(--azul);width:16px;height:16px;" checked>
+                                <span>Disponible en DEGIRO / brokers internacionales</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -692,9 +735,16 @@ La app buscará automáticamente un bloque JSON como este:
     "deuda_ebitda": 1.1,
     "dividendo_pct": 3.2,
     "crecimiento_ingresos": 8.5,
+    "ter": 0.20,
+    "comision_gestion": 0.15,
+    "sin_comision_exito": true,
+    "myinvestor": true,
+    "indexa": false,
+    "finizens": false,
+    "degiro": true,
     "puntuacion": 82,
     "veredicto": "COMPRAR",
-    "razon": "Empresa bien valorada con sólido balance y dividendo creciente."
+    "razon": "Empresa bien valorada con bajo coste total (0.35%) y disponible en MyInvestor."
   }
 ]'></textarea>
 
@@ -739,6 +789,8 @@ La app buscará automáticamente un bloque JSON como este:
                         <th class="td-ratio" onclick="ordenarPor('deuda_ebitda')">Deuda/<br>EBITDA <span class="sort-ico">↕</span></th>
                         <th class="td-ratio" onclick="ordenarPor('dividendo_pct')">Div. <span class="sort-ico">↕</span></th>
                         <th class="td-ratio" onclick="ordenarPor('crecimiento_ingresos')">Crec. <span class="sort-ico">↕</span></th>
+                        <th class="td-coste" onclick="ordenarPor('coste_total')" title="TER + Comisión gestión + Comisión éxito (si aplica)">💸 Coste<br>Total <span class="sort-ico">↕</span></th>
+                        <th class="td-veredicto">🏦 Plataformas</th>
                         <th class="td-puntuacion" onclick="ordenarPor('puntuacion')">Puntuación <span class="sort-ico">↕</span></th>
                         <th class="td-veredicto" onclick="ordenarPor('veredicto')">Veredicto <span class="sort-ico">↕</span></th>
                         <th class="td-acciones">Analizar</th>
@@ -746,7 +798,7 @@ La app buscará automáticamente un bloque JSON como este:
                 </thead>
                 <tbody id="tablaBody">
                     <tr>
-                        <td colspan="10">
+                        <td colspan="12">
                             <div class="empty-state">
                                 <span class="ico">🔍</span>
                                 <h3>Todavía no hay empresas</h3>
@@ -777,7 +829,7 @@ La app buscará automáticamente un bloque JSON como este:
 // ══════════════════════════════════════════════════════
 //  PERSISTENCIA SCREENER
 // ══════════════════════════════════════════════════════
-const SCREENER_KEY = 'screenerEmpresasIA_v1';
+const SCREENER_KEY = 'screenerEmpresasIA_v2';
 
 function guardarScreener() {
     try { localStorage.setItem(SCREENER_KEY, JSON.stringify(empresasData)); } catch(e) {}
@@ -818,6 +870,18 @@ function updateSlider(id, val, prefix, suffix = '') {
     const num = parseFloat(val);
     document.getElementById('val-' + id).innerHTML =
         `${prefix}<strong>${num}${suffix}</strong>`;
+    // Actualizar preview de coste total si cambia TER o gestión
+    if (id === 'ter' || id === 'gestion') actualizarCostePreview();
+}
+
+function actualizarCostePreview() {
+    const el = document.getElementById('coste-total-preview');
+    if (!el) return;
+    const ter  = parseFloat(document.getElementById('sl-ter')?.value || 0);
+    const gest = parseFloat(document.getElementById('sl-gestion')?.value || 0);
+    const total = ter + gest;
+    el.textContent = ter.toFixed(1) + '% + ' + gest.toFixed(1) + '% = ' + total.toFixed(1) + '%/año';
+    el.style.color = total <= 0.5 ? '#06d6a0' : total <= 1.2 ? '#fb8500' : '#ef233c';
 }
 
 function toggleCriterio(id) {
@@ -848,6 +912,15 @@ function generarPromptScreener() {
     if (cfg.solidez)      criteriosTexto.push(`• Solidez financiera: Deuda Neta/EBITDA ≤ ${cfg.deuda}x${cfg.cajaneta ? ' (preferir caja neta positiva)' : ''}`);
     if (cfg.dividendo)    criteriosTexto.push(`• Dividendo: rentabilidad ≥ ${cfg.div}%${cfg.divcrece ? ', que crezca o se mantenga' : ''}`);
     if (cfg.crecimiento)  criteriosTexto.push(`• Crecimiento: ingresos creciendo ≥ ${cfg.crec}%/año y EBITDA ≥ ${cfg.crecebitda}%/año`);
+    if (cfg.comisiones)   criteriosTexto.push(`• Comisiones/gastos bajos: TER ≤ ${cfg.ter}% y comisión de gestión ≤ ${cfg.gestion}%${cfg.sinexito ? ', SIN comisión de éxito' : ''} — el coste total anual (TER + gestión) debe ser ≤ ${(parseFloat(cfg.ter)+parseFloat(cfg.gestion)).toFixed(1)}%`);
+    if (cfg.donde) {
+        let plataformas = [];
+        if (cfg.myinvestor) plataformas.push('MyInvestor (fondos indexados, ETFs y acciones ES)');
+        if (cfg.indexa) plataformas.push('Indexa Capital (carteras automatizadas)');
+        if (cfg.finizens) plataformas.push('Finizens (carteras automatizadas)');
+        if (cfg.degiro) plataformas.push('DEGIRO (ETFs y acciones internacionales)');
+        if (plataformas.length) criteriosTexto.push(`• Accesible desde alguna de estas plataformas españolas: ${plataformas.join(', ')}`);
+    }
 
     const prompt = `🔍 BÚSQUEDA DE EMPRESAS CON POTENCIAL — SCREENER CON IA
 Fecha: ${new Date().toLocaleDateString('es-ES')}
@@ -873,7 +946,12 @@ REGLAS ADICIONALES:
 • Elige empresas con fundamentos sólidos, no solo especulativas
 • Ordénalas de mayor a menor puntuación
 • El campo "veredicto" solo puede ser uno de estos valores: "COMPRAR", "ESTUDIAR", "VIGILAR" o "EVITAR"
-• La "razon" debe estar en español y en lenguaje sencillo (máximo 2 frases)
+• La "razon" debe estar en español y en lenguaje sencillo (máximo 2 frases) e incluir si los costes afectan significativamente a la rentabilidad
+• Para fondos y ETFs: incluye el TER real (Total Expense Ratio) del producto y la comisión de gestión anual del fondo/ETF
+• Para acciones directas: TER = 0 y comision_gestion = 0
+• El campo "coste_total" (TER + comision_gestion) es crítico: un producto con 1.5% de costes anuales necesita rendir al menos 1.5% más para igualar a uno sin costes
+• Indica si el producto tiene comisión de éxito (sin_comision_exito = false si la tiene)
+• Para las plataformas: myinvestor (fondos indexados, ETFs, acciones españolas), indexa (carteras automatizadas), finizens (carteras automatizadas), degiro (ETFs y acciones internacionales)
 
 FORMATO DE RESPUESTA — Devuelve SOLO este JSON (sin texto antes ni después):
 
@@ -889,11 +967,26 @@ FORMATO DE RESPUESTA — Devuelve SOLO este JSON (sin texto antes ni después):
     "deuda_ebitda": 0.0,
     "dividendo_pct": 0.0,
     "crecimiento_ingresos": 0.0,
+    "ter": 0.0,
+    "comision_gestion": 0.0,
+    "sin_comision_exito": true,
+    "myinvestor": true,
+    "indexa": false,
+    "finizens": false,
+    "degiro": true,
     "puntuacion": 0,
     "veredicto": "COMPRAR",
-    "razon": "Explicación sencilla en 1-2 frases de por qué esta empresa cumple los criterios."
+    "razon": "Explicación en 1-2 frases de por qué cumple los criterios y si los costes son un factor relevante."
   }
 ]
+
+NOTAS SOBRE LOS COSTES:
+• "ter": TER anual real del fondo/ETF (0 para acciones directas)
+• "comision_gestion": comisión de gestión anual (puede solaparse o sumarse al TER según el producto)
+• "sin_comision_exito": true = NO tiene comisión de éxito (preferible), false = SÍ la tiene
+• MyInvestor: permite fondos indexados (Vanguard, iShares, Amundi), ETFs en bolsa y acciones españolas
+• DEGIRO: broker europeo para ETFs y acciones internacionales, sin custodia en muchos ETFs
+• Indexa y Finizens: roboadvisors, solo carteras automatizadas, no acciones individuales
 
 Recuerda: devuelve SOLO el array JSON, sin ningún texto adicional.`;
 
@@ -909,6 +1002,8 @@ function recogerConfig() {
         solidez:     document.getElementById('chk-solidez').checked,
         dividendo:   document.getElementById('chk-dividendo').checked,
         crecimiento: document.getElementById('chk-crecimiento').checked,
+        comisiones:  document.getElementById('chk-comisiones').checked,
+        donde:       document.getElementById('chk-donde').checked,
         per:         document.getElementById('sl-per').value,
         evebitda:    document.getElementById('sl-evebitda').value,
         deuda:       document.getElementById('sl-deuda').value,
@@ -917,6 +1012,13 @@ function recogerConfig() {
         divcrece:    document.getElementById('chk-divcrece').checked,
         crec:        document.getElementById('sl-crec').value,
         crecebitda:  document.getElementById('sl-crecebitda').value,
+        ter:         document.getElementById('sl-ter').value,
+        gestion:     document.getElementById('sl-gestion').value,
+        sinexito:    document.getElementById('chk-sincomisionexito').checked,
+        myinvestor:  document.getElementById('chk-myinvestor').checked,
+        indexa:      document.getElementById('chk-indexa').checked,
+        finizens:    document.getElementById('chk-finizens').checked,
+        degiro:      document.getElementById('chk-degiro').checked,
         zona:        document.getElementById('sel-zona').value,
         cap:         document.getElementById('sel-cap').value,
         sector:      document.getElementById('sel-sector').value,
@@ -948,7 +1050,6 @@ function regenerarPromptEstricto() {
 
 // ══════════════════════════════════════════════════════
 //  PROCESAR JSON
-// ══════════════════════════════════════════════════════
 function procesarJSON() {
     const raw   = document.getElementById('jsonInput').value.trim();
     const area  = document.getElementById('jsonInput');
@@ -990,6 +1091,14 @@ function procesarJSON() {
             deuda_ebitda:        parseFloat(e.deuda_ebitda) || null,
             dividendo_pct:       parseFloat(e.dividendo_pct) || null,
             crecimiento_ingresos: parseFloat(e.crecimiento_ingresos) || null,
+            ter:                 parseFloat(e.ter) ?? null,
+            comision_gestion:    parseFloat(e.comision_gestion) ?? null,
+            sin_comision_exito:  e.sin_comision_exito !== undefined ? !!e.sin_comision_exito : true,
+            coste_total:         (parseFloat(e.ter)||0) + (parseFloat(e.comision_gestion)||0),
+            myinvestor:          e.myinvestor || false,
+            indexa:              e.indexa || false,
+            finizens:            e.finizens || false,
+            degiro:              e.degiro || false,
             puntuacion:          parseInt(e.puntuacion) || 50,
             veredicto:           (e.veredicto || 'ESTUDIAR').toUpperCase(),
             razon:               e.razon || '',
@@ -1016,11 +1125,11 @@ function mostrarError(html) {
 
 function cargarEjemplo() {
     const ejemplo = [
-        {"nombre":"Inditex","ticker":"ITX","isin":"ES0148396007","pais":"España","sector":"Consumo","per":22,"ev_ebitda":14,"deuda_ebitda":0,"dividendo_pct":3.8,"crecimiento_ingresos":12,"puntuacion":88,"veredicto":"COMPRAR","razon":"Líder mundial en moda rápida con caja neta positiva, dividendo creciente y márgenes excelentes."},
-        {"nombre":"LVMH","ticker":"MC","isin":"FR0000121014","pais":"Francia","sector":"Lujo / Consumo","per":21,"ev_ebitda":13,"deuda_ebitda":1.2,"dividendo_pct":2.1,"crecimiento_ingresos":9,"puntuacion":85,"veredicto":"COMPRAR","razon":"El gigante del lujo con marcas irreemplazables y crecimiento sostenido en Asia."},
-        {"nombre":"Microsoft","ticker":"MSFT","isin":"US5949181045","pais":"EE.UU.","sector":"Tecnología","per":33,"ev_ebitda":22,"deuda_ebitda":0.5,"dividendo_pct":0.8,"crecimiento_ingresos":15,"puntuacion":82,"veredicto":"ESTUDIAR","razon":"Crecimiento excepcional en la nube, aunque cotiza a múltiplos exigentes."},
-        {"nombre":"Repsol","ticker":"REP","isin":"ES0173516115","pais":"España","sector":"Energía","per":7,"ev_ebitda":4,"deuda_ebitda":0.8,"dividendo_pct":6.5,"crecimiento_ingresos":3,"puntuacion":77,"veredicto":"COMPRAR","razon":"Muy barata por valoración con dividendo atractivo y plan de descarbonización en marcha."},
-        {"nombre":"Veolia","ticker":"VIE","isin":"FR0000124141","pais":"Francia","sector":"Utilities","per":14,"ev_ebitda":9,"deuda_ebitda":2.9,"dividendo_pct":4.2,"crecimiento_ingresos":6,"puntuacion":71,"veredicto":"VIGILAR","razon":"Sólido negocio de agua y residuos pero con deuda elevada que hay que seguir de cerca."}
+        {"nombre":"Inditex","ticker":"ITX","isin":"ES0148396007","pais":"España","sector":"Consumo","per":22,"ev_ebitda":14,"deuda_ebitda":0,"dividendo_pct":3.8,"crecimiento_ingresos":12,"ter":0,"comision_gestion":0,"sin_comision_exito":true,"myinvestor":true,"indexa":false,"finizens":false,"degiro":true,"coste_total":0,"puntuacion":88,"veredicto":"COMPRAR","razon":"Líder mundial en moda rápida con caja neta positiva y dividendo creciente. Coste cero al ser acción directa."},
+        {"nombre":"iShares MSCI World ETF","ticker":"IWDA","isin":"IE00B4L5Y983","pais":"Irlanda (global)","sector":"Renta Variable Global","per":18,"ev_ebitda":12,"deuda_ebitda":0,"dividendo_pct":0,"crecimiento_ingresos":10,"ter":0.20,"comision_gestion":0,"sin_comision_exito":true,"myinvestor":true,"indexa":false,"finizens":false,"degiro":true,"coste_total":0.20,"puntuacion":85,"veredicto":"COMPRAR","razon":"ETF con TER de solo 0.20% que replica el MSCI World. Muy eficiente en costes y disponible sin comisión de custodia en DEGIRO."},
+        {"nombre":"Vanguard FTSE All-World","ticker":"VWCE","isin":"IE00BK5BQT80","pais":"Irlanda (global)","sector":"Renta Variable Global","per":17,"ev_ebitda":11,"deuda_ebitda":0,"dividendo_pct":1.5,"crecimiento_ingresos":9,"ter":0.22,"comision_gestion":0,"sin_comision_exito":true,"myinvestor":true,"indexa":false,"finizens":false,"degiro":true,"coste_total":0.22,"puntuacion":82,"veredicto":"COMPRAR","razon":"ETF global con acumulación de dividendos y TER de 0.22%. Disponible en MyInvestor y DEGIRO sin comisión en la lista de ETFs gratuitos."},
+        {"nombre":"Repsol","ticker":"REP","isin":"ES0173516115","pais":"España","sector":"Energía","per":7,"ev_ebitda":4,"deuda_ebitda":0.8,"dividendo_pct":6.5,"crecimiento_ingresos":3,"ter":0,"comision_gestion":0,"sin_comision_exito":true,"myinvestor":true,"indexa":false,"finizens":false,"degiro":true,"coste_total":0,"puntuacion":77,"veredicto":"COMPRAR","razon":"Muy barata por valoración con dividendo del 6.5%. Coste cero al comprar acción directa en MyInvestor o DEGIRO."},
+        {"nombre":"Fondo Indexado Amundi MSCI World","ticker":"LU1681045370","isin":"LU1681045370","pais":"Luxemburgo (global)","sector":"Renta Variable Global","per":18,"ev_ebitda":12,"deuda_ebitda":0,"dividendo_pct":0,"crecimiento_ingresos":9,"ter":0.12,"comision_gestion":0.07,"sin_comision_exito":true,"myinvestor":true,"indexa":true,"finizens":false,"degiro":false,"coste_total":0.19,"puntuacion":71,"veredicto":"COMPRAR","razon":"Fondo indexado con coste total de solo 0.19% al año, disponible en MyInvestor e Indexa Capital. Sin comisión de éxito."}
     ];
     document.getElementById('jsonInput').value = JSON.stringify(ejemplo, null, 2);
     document.getElementById('jsonInput').classList.remove('error','ok');
@@ -1036,7 +1145,7 @@ function renderizarTabla(datos) {
     const info  = document.getElementById('rejillaInfo');
 
     if (!datos.length) {
-        tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><span class="ico">🔍</span><h3>Sin resultados</h3><p>Prueba a ajustar los criterios de búsqueda.</p></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><span class="ico">🔍</span><h3>Sin resultados</h3><p>Prueba a ajustar los criterios de búsqueda.</p></div></td></tr>`;
         info.innerHTML = 'Sin empresas que mostrar';
         return;
     }
@@ -1054,6 +1163,22 @@ function renderizarTabla(datos) {
         const deudaClass    = colorRatio(e.deuda_ebitda,[2, 4],   true);
         const divClass      = colorRatio(e.dividendo_pct,[2, 4],  false);
         const crecClass     = colorRatio(e.crecimiento_ingresos,[5,10], false);
+        // Coste total = TER + gestión (si están disponibles)
+        const ter = e.ter || 0;
+        const gest = e.comision_gestion || 0;
+        const costeTotal = ter + gest;
+        const costeTotalDisplay = costeTotal > 0 ? costeTotal.toFixed(2) + '%' : '—';
+        const costeClass = costeTotal === 0 ? '' : costeTotal <= 0.5 ? 'coste-bueno' : costeTotal <= 1.2 ? 'coste-normal' : 'coste-malo';
+        const costeDesglose = costeTotal > 0 ? (ter > 0 ? 'TER ' + ter.toFixed(2) + '%' : '') + (ter > 0 && gest > 0 ? ' + ' : '') + (gest > 0 ? 'Gest. ' + gest.toFixed(2) + '%' : '') + (e.sin_comision_exito ? '<br>✓ sin com. éxito' : '<br>⚠ com. éxito') : '';
+        
+        // Badges de plataformas
+        let platHtml = '<div class="plat-badges">';
+        if (e.myinvestor) platHtml += '<span class="plat-badge plat-myinvestor">🏦 MyInvestor</span>';
+        if (e.indexa)     platHtml += '<span class="plat-badge plat-indexa">📊 Indexa</span>';
+        if (e.finizens)   platHtml += '<span class="plat-badge plat-finizens">💼 Finizens</span>';
+        if (e.degiro)     platHtml += '<span class="plat-badge plat-degiro">🌍 DEGIRO</span>';
+        if (!e.myinvestor && !e.indexa && !e.finizens && !e.degiro) platHtml += '<span class="plat-ninguna">—</span>';
+        platHtml += '</div>';
 
         return `<tr>
             <td class="td-empresa">
@@ -1079,12 +1204,17 @@ function renderizarTabla(datos) {
             </td>
             <td class="td-ratio">
                 <div class="ratio-val ${divClass}">${fmt(e.dividendo_pct)}%</div>
-                <div class="ratio-label">Divid.</div>
+                <div class="ratio-label">Div.</div>
             </td>
             <td class="td-ratio">
                 <div class="ratio-val ${crecClass}">${fmt(e.crecimiento_ingresos)}%</div>
                 <div class="ratio-label">Crec.</div>
             </td>
+            <td class="td-coste">
+                <div class="coste-total ${costeClass}">${costeTotalDisplay}</div>
+                <div class="coste-desglose">${costeDesglose}</div>
+            </td>
+            <td class="td-veredicto">${platHtml}</td>
             <td class="td-puntuacion">
                 <div class="puntuacion-num ${pClass}">${e.puntuacion}</div>
                 <div class="puntuacion-bar"><div class="puntuacion-fill" style="width:${e.puntuacion}%;background:${pColor}"></div></div>
@@ -1092,6 +1222,7 @@ function renderizarTabla(datos) {
             </td>
             <td class="td-veredicto">
                 <span class="veredicto-badge ${vClass}">${vIcon} ${e.veredicto}</span>
+                <div style="margin-top:5px;">${platHtml}</div>
             </td>
             <td class="td-acciones">
                 <button class="btn-analizar" onclick="analizarEmpresa('${encodeURIComponent(e.isin !== 'N/D' ? e.isin : e.ticker)}','${encodeURIComponent(e.nombre)}')">
@@ -1208,10 +1339,12 @@ function limpiarResultados() {
 // ══════════════════════════════════════════════════════
 function exportarCSV() {
     if (!empresasData.length) { toast('No hay datos que exportar', 'error'); return; }
-    const cab = ['Nombre','Ticker','ISIN','País','Sector','PER','EV/EBITDA','Deuda/EBITDA','Dividendo%','Crec.Ingresos%','Puntuación','Veredicto','Razón'];
+    const cab = ['Nombre','Ticker','ISIN','País','Sector','PER','EV/EBITDA','Deuda/EBITDA','Dividendo%','Crec.Ingresos%','TER%','Com.Gestión%','Coste Total%','Sin éxito','MyInvestor','Indexa','Finizens','DEGIRO','Puntuación','Veredicto','Razón'];
     const filas = empresasData.map(e => [
         e.nombre, e.ticker, e.isin, e.pais, e.sector,
         e.per, e.ev_ebitda, e.deuda_ebitda, e.dividendo_pct, e.crecimiento_ingresos,
+        e.ter||0, e.comision_gestion||0, ((e.ter||0)+(e.comision_gestion||0)).toFixed(2), e.sin_comision_exito ? 'Sí' : 'No',
+        e.myinvestor ? 'Sí' : 'No', e.indexa ? 'Sí' : 'No', e.finizens ? 'Sí' : 'No', e.degiro ? 'Sí' : 'No',
         e.puntuacion, e.veredicto, `"${e.razon}"`
     ].join(','));
     const csv  = [cab.join(','), ...filas].join('\n');
@@ -1235,10 +1368,59 @@ function toast(msg, tipo = 'ok', ms = 2800) {
     toastTimer = setTimeout(() => el.style.display = 'none', ms);
 }
 
+
+
+// Extrae el primer array JSON válido de un texto
+// ══════════════════════════════════════════════════════
+//  RESTABLECER VALORES POR DEFECTO
+// ══════════════════════════════════════════════════════
+function restablecerDefectos() {
+    const togglesActivos = ['chk-valoracion','chk-solidez','chk-dividendo','chk-crecimiento','chk-comisiones','chk-donde'];
+    togglesActivos.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.checked = true; toggleCriterio(id.replace('chk-','')); }
+    });
+    ['chk-divcrece','chk-sincomisionexito','chk-myinvestor','chk-indexa','chk-finizens','chk-degiro'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = true;
+    });
+    const cajaneta = document.getElementById('chk-cajaneta');
+    if (cajaneta) cajaneta.checked = false;
+
+    const sliderDefs = {
+        'sl-per':15, 'sl-evebitda':10, 'sl-deuda':2,
+        'sl-div':2,  'sl-crec':5,      'sl-crecebitda':5,
+        'sl-ter':0.5,'sl-gestion':1
+    };
+    Object.entries(sliderDefs).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = val;
+        el.dispatchEvent(new Event('input'));
+    });
+
+    const selectDefs = {
+        'sel-zona':'global', 'sel-cap':'todas', 'sel-sector':'todos',
+        'sel-num':'10', 'sel-riesgo':'moderado', 'sel-horizonte':'medio'
+    };
+    Object.entries(selectDefs).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    });
+
+    actualizarCostePreview();
+
+    const secPrompt = document.getElementById('secPrompt');
+    if (secPrompt) secPrompt.style.display = 'none';
+
+    toast('↺ Valores restablecidos a los óptimos por defecto', 'info');
+}
+
 // ══════════════════════════════════════════════════════
 //  LEER ISIN DE LA URL (si viene de la herramienta principal)
 // ══════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
+    actualizarCostePreview();
     // Si hay un ISIN en la URL, ponerlo en el campo al volver
     const params = new URLSearchParams(window.location.search);
     if (params.get('desde') === 'herramienta') {

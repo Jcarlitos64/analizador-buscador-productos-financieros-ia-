@@ -7,7 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
+    <script>
+        // Leer ISIN de la URL inmediatamente (antes del DOM)
+        window._isinDesdeUrl = new URLSearchParams(window.location.search).get('isin') || '';
+    </script>
     <style>
         :root {
             --azul:      #4361ee;
@@ -340,7 +343,7 @@
     <div class="cabecera-izq">
         <span style="font-size:28px;">🤖</span>
         <div>
-            <h1>Análisis Financiero con IA <span class="badge-v">v3.1</span></h1>
+            <h1>Análisis Financiero con IA <span class="badge-v">v3.5</span></h1>
             <small>Analiza acciones, ETFs, fondos y bonos · Guarda tus análisis · 100% local</small>
         </div>
     </div>
@@ -368,6 +371,58 @@
             <button class="btn-buscar-hist" onclick="buscarEnHistorial()">📚 Ver guardados</button>
         </div>
         <p style="font-size:12px;color:var(--texto2);margin-bottom:14px;">💡 El ISIN es el código de 12 letras de tu fondo o ETF. El Ticker es el símbolo de bolsa (ej: AAPL para Apple).</p>
+
+        <!-- DATOS DEL PRODUCTO (opcional) -->
+        <div id="datosProductoWrap" style="background:rgba(67,97,238,.06);border:1px solid rgba(67,97,238,.2);border-radius:12px;padding:14px 16px;margin-bottom:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer;" onclick="toggleDatosProducto()">
+                <span style="font-size:13px;font-weight:700;color:#a78bfa;">⚙️ Datos del producto <span style="font-size:11px;font-weight:400;color:var(--texto2);">(opcional — mejora el análisis)</span></span>
+                <span id="datosProductoChev" style="color:var(--texto2);font-size:12px;">▼</span>
+            </div>
+            <div id="datosProductoBody" style="display:none;">
+                <p style="font-size:12px;color:var(--texto2);margin-bottom:12px;">Si conoces estos datos, la IA los usará directamente en el prompt para un análisis más preciso sobre costes y dónde comprar.</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:11px;color:var(--texto2);display:block;margin-bottom:4px;">TER anual (%)</label>
+                        <input type="number" id="dp-ter" min="0" max="5" step="0.01" placeholder="ej: 0.20" style="width:100%;padding:8px 10px;background:rgba(255,255,255,.06);border:1px solid var(--borde);border-radius:7px;color:var(--texto);font-size:13px;outline:none;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px;color:var(--texto2);display:block;margin-bottom:4px;">Com. gestión (%)</label>
+                        <input type="number" id="dp-gestion" min="0" max="5" step="0.01" placeholder="ej: 0.15" style="width:100%;padding:8px 10px;background:rgba(255,255,255,.06);border:1px solid var(--borde);border-radius:7px;color:var(--texto);font-size:13px;outline:none;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px;color:var(--texto2);display:block;margin-bottom:4px;">¿Com. de éxito?</label>
+                        <select id="dp-exito" style="width:100%;padding:8px 10px;background:rgba(255,255,255,.06);border:1px solid var(--borde);border-radius:7px;color:var(--texto);font-size:13px;outline:none;appearance:none;">
+                            <option value="">No sé</option>
+                            <option value="no">No tiene ✓</option>
+                            <option value="si">Sí tiene ⚠️</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:11px;color:var(--texto2);display:block;margin-bottom:6px;">¿Dónde se puede comprar?</label>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:5px 10px;border-radius:8px;border:1px solid var(--borde);background:rgba(255,255,255,.03);">
+                            <input type="checkbox" id="dp-myinvestor" style="accent-color:var(--azul);">🏦 MyInvestor
+                        </label>
+                        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:5px 10px;border-radius:8px;border:1px solid var(--borde);background:rgba(255,255,255,.03);">
+                            <input type="checkbox" id="dp-indexa" style="accent-color:var(--azul);">📊 Indexa
+                        </label>
+                        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:5px 10px;border-radius:8px;border:1px solid var(--borde);background:rgba(255,255,255,.03);">
+                            <input type="checkbox" id="dp-finizens" style="accent-color:var(--azul);">💼 Finizens
+                        </label>
+                        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:5px 10px;border-radius:8px;border:1px solid var(--borde);background:rgba(255,255,255,.03);">
+                            <input type="checkbox" id="dp-degiro" style="accent-color:var(--azul);">🌍 DEGIRO
+                        </label>
+                        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:5px 10px;border-radius:8px;border:1px solid var(--borde);background:rgba(255,255,255,.03);">
+                            <input type="checkbox" id="dp-otro" style="accent-color:var(--azul);">🏛️ Otro broker
+                        </label>
+                    </div>
+                </div>
+                <div id="costePreviewHerramienta" style="margin-top:12px;padding:8px 12px;background:rgba(6,214,160,.06);border:1px solid rgba(6,214,160,.2);border-radius:8px;font-size:12px;color:var(--texto2);display:none;">
+                    💡 Coste total anual estimado: <strong id="costeTotalHerr" style="color:#06d6a0;"></strong> — La IA lo tendrá en cuenta en el análisis.
+                </div>
+            </div>
+        </div>
 
         <!-- TABS -->
         <div class="tabs">
@@ -572,10 +627,15 @@
                 <li><strong>Ticker</strong>: Símbolo de bolsa de una acción (ej: AAPL = Apple, SAN = Santander)</li>
                 <li><strong>PER</strong>: Cuántos años de beneficios vale la empresa. Bajo = barata, alto = cara</li>
                 <li><strong>EV/EBITDA</strong>: Cómo se valora la empresa respecto a lo que gana. Menos de 10 suele ser atractivo</li>
+                <li><strong>TER</strong>: Coste total anual del fondo/ETF. &lt;0.5% barato · 0.5-1% normal · &gt;1% caro</li>
+                <li><strong>Com. éxito</strong>: Extra que cobra el gestor si supera al índice. Mejor evitarla</li>
+                <li><strong>Coste total</strong>: TER + gestión. Un 1.5%/año son 150€ por cada 10.000€ invertidos</li>
                 <li><strong>Fair Value</strong>: Precio justo estimado. Si la acción cotiza por debajo, puede ser una oportunidad</li>
                 <li><strong>Deuda neta</strong>: Deuda total menos la caja. Si es negativa, la empresa tiene más dinero que deudas</li>
-                <li><strong>ETF</strong>: Fondo que cotiza en bolsa, generalmente muy barato de comisiones</li>
-                <li><strong>Renta fija</strong>: Bonos. Prestan dinero a Estados o empresas a cambio de un interés fijo</li>
+                <li><strong>ETF</strong>: Fondo que cotiza en bolsa, muy barato de comisiones (TER típico: 0.1-0.3%)</li>
+                <li><strong>MyInvestor</strong>: Plataforma española para fondos indexados, ETFs y acciones sin comisión de custodia</li>
+                <li><strong>DEGIRO</strong>: Broker europeo barato para ETFs y acciones internacionales</li>
+                <li><strong>Indexa / Finizens</strong>: Roboadvisors españoles con carteras automatizadas de fondos indexados</li>
             </ul>
         </div>
     </div>
@@ -671,6 +731,78 @@ function toast(msg, tipo='ok', ms=2800) {
     el.style.display = 'block';
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.style.display='none', ms);
+}
+
+// ══════════════════════════════════════════════════════════
+//  DATOS DEL PRODUCTO — PANEL COLAPSABLE
+// ══════════════════════════════════════════════════════════
+function toggleDatosProducto() {
+    const body = document.getElementById('datosProductoBody');
+    const chev = document.getElementById('datosProductoChev');
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    chev.textContent = open ? '▼' : '▲';
+}
+
+function actualizarCostePreviewHerr() {
+    const ter   = parseFloat(document.getElementById('dp-ter')?.value || 0) || 0;
+    const gest  = parseFloat(document.getElementById('dp-gestion')?.value || 0) || 0;
+    const total = ter + gest;
+    const el    = document.getElementById('costePreviewHerramienta');
+    const elNum = document.getElementById('costeTotalHerr');
+    if (!el || !elNum) return;
+    if (total > 0) {
+        el.style.display = 'block';
+        elNum.textContent = total.toFixed(2) + '%/año';
+        elNum.style.color = total <= 0.5 ? '#06d6a0' : total <= 1.2 ? '#fb8500' : '#ef233c';
+    } else {
+        el.style.display = 'none';
+    }
+}
+
+function getDatosProducto() {
+    const ter   = parseFloat(document.getElementById('dp-ter')?.value || 0) || 0;
+    const gest  = parseFloat(document.getElementById('dp-gestion')?.value || 0) || 0;
+    const exito = document.getElementById('dp-exito')?.value || '';
+    const plats = [];
+    if (document.getElementById('dp-myinvestor')?.checked) plats.push('MyInvestor');
+    if (document.getElementById('dp-indexa')?.checked)     plats.push('Indexa Capital');
+    if (document.getElementById('dp-finizens')?.checked)   plats.push('Finizens');
+    if (document.getElementById('dp-degiro')?.checked)     plats.push('DEGIRO');
+    if (document.getElementById('dp-otro')?.checked)       plats.push('otro broker');
+    return { ter, gest, exito, plats, total: ter + gest };
+}
+
+function buildDatosProductoTexto() {
+    const d = getDatosProducto();
+    if (d.ter === 0 && d.gest === 0 && d.exito === '' && d.plats.length === 0) return '';
+    let txt = '
+
+INFORMACIÓN CONOCIDA DEL PRODUCTO (usa estos datos directamente):
+';
+    if (d.ter > 0) txt += `• TER (Total Expense Ratio): ${d.ter.toFixed(2)}% anual
+`;
+    if (d.gest > 0) txt += `• Comisión de gestión: ${d.gest.toFixed(2)}% anual
+`;
+    if (d.ter > 0 || d.gest > 0) {
+        txt += `• Coste total anual estimado: ${d.total.toFixed(2)}% → Por cada 1.000€ invertidos, pagas ${(d.total*10).toFixed(2)}€/año en comisiones del producto
+`;
+        txt += `  (Un fondo con ${d.total.toFixed(2)}% de costes necesita rendir ${d.total.toFixed(2)}% más que uno sin costes para igualarlo)
+`;
+    }
+    if (d.exito === 'no') txt += '• Comisión de éxito: NO tiene ✓ (mejor para el inversor)
+';
+    if (d.exito === 'si') txt += '• Comisión de éxito: SÍ tiene ⚠️ (resta a la rentabilidad cuando supera el benchmark)
+';
+    if (d.plats.length > 0) {
+        txt += `• Disponible en: ${d.plats.join(', ')}
+`;
+        txt += '  → Ten en cuenta también las comisiones de la plataforma (custodia, compra/venta)
+';
+    }
+    txt += '
+Análisis de costes obligatorio: incluye en tu análisis si el coste total anual es competitivo para el tipo de producto, cómo afecta a la rentabilidad real a 10-20 años, y si existe una alternativa más barata similar.';
+    return txt;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -999,25 +1131,7 @@ function mostrarModalSalidaAnalisis(callback) {
     document.getElementById('_btnCSA').onclick = () => { document.body.removeChild(overlay); if(callback) callback(false); };
 }
 
-window.addEventListener('beforeunload', e => {
-    if (analisis.length > 0 && !_analisisGuardadoConfirmado) {
-        e.preventDefault();
-        e.returnValue = '¿Has guardado el archivo de análisis antes de salir?';
-    }
-});
-
-document.addEventListener('click', e => {
-    const link = e.target.closest('a[href]');
-    if (link) {
-        const href = link.getAttribute('href') || '';
-        if (href && href !== '#' && !href.startsWith('javascript') && !href.startsWith('mailto')) {
-            if (analisis.length > 0 && !_analisisGuardadoConfirmado) {
-                e.preventDefault();
-                mostrarModalSalidaAnalisis(ok => { if(ok) location.href = href; });
-            }
-        }
-    }
-});
+// Guardado: usa el botón 💾 Guardar análisis cuando quieras hacer backup
 
 // ══════════════════════════════════════════════════════════
 //  GENERADOR DE PROMPTS — mejorados para principiantes
@@ -1027,9 +1141,10 @@ function generarPrompt(tipo) {
     if (!isin) { toast('Introduce el ISIN o Ticker primero', 'error'); return; }
 
     const f = new Date().toLocaleDateString('es-ES');
+    const datosExtra = buildDatosProductoTexto();
     const cabecera = `🤖 ANÁLISIS FINANCIERO CON IA
 Fecha: ${f}
-Producto: ${isin}
+Producto: ${isin}${datosExtra}
 ═══════════════════════════════════════════════════
 
 INSTRUCCIONES OBLIGATORIAS — LÉELAS ANTES DE RESPONDER:
@@ -1082,10 +1197,14 @@ Quiero saber si este producto financiero es una buena inversión para alguien qu
    - En el peor caso realista, ¿cuánto dinero podría perderse? (da un porcentaje aproximado)
    - ¿Hay algo que esté pasando ahora mismo que lo haga más arriesgado de lo habitual?
 
-5. ¿CUÁNTO CUESTA TENERLO?
-   - ¿Qué comisiones cobra el propio producto cada año?
+5. ¿CUÁNTO CUESTA TENERLO? (sección OBLIGATORIA — nunca la omitas)
+   - TER (coste total anual del fondo/ETF): ¿cuánto es? ¿Es barato (<0.5%), normal (0.5-1%) o caro (>1%)?
+   - Comisión de gestión: ¿cuánto cobra el gestor?
+   - ¿Tiene comisión de éxito? (si la tiene, explica cómo funciona y por qué puede ser mala para el inversor)
    - Ejemplo concreto: "Si inviertes 1.000€, pagas aproximadamente X€ al año solo en comisiones del producto"
-   - Recuerda mencionar que el broker o banco también puede cobrar comisiones adicionales
+   - Impacto en 20 años: "Con un coste de X% anual, una inversión de 10.000€ que crece al 7% anual vale Y€ menos que si el coste fuera 0%"
+   - ¿Es competitivo en costes respecto a alternativas similares?
+   - Recuerda mencionar que el broker o banco también puede cobrar comisiones adicionales (custodia, compra/venta)
 
 6. ¿HAY ALGO MEJOR PARA UN PRINCIPIANTE?
    - Si NO es apto para principiantes, di qué tipo de producto sería más adecuado y por qué (no hace falta que sea uno concreto)
@@ -1116,6 +1235,8 @@ Necesito entender qué es este producto financiero desde cero, como si nunca hub
    - País de registro y moneda en la que cotiza
    - Tamaño (capitalización o patrimonio del fondo)
    - ¿Reparte dinero periódicamente (dividendos/cupones) o lo reinvierte todo?
+   - TER anual (si es fondo o ETF): ¿cuánto es y si es competitivo?
+   - ¿Dónde se puede comprar en España? (MyInvestor, Indexa Capital, Finizens, DEGIRO, bancos tradicionales)
 
 4. ¿CÓMO GANA DINERO EL INVERSOR?
    - Explica los dos únicos caminos para ganar: que suba el precio, y/o que reparta dividendos
@@ -1194,6 +1315,10 @@ Quiero saber si ahora mismo, con el precio y el contexto actuales, tiene sentido
    - ¿Comprar todo de golpe ahora o ir comprando poco a poco cada mes? (esto se llama DCA, explicarlo brevemente)
    - ¿Cuánto tiempo mínimo debería mantener la inversión para que tenga sentido?
    - ¿A qué precio sería una oportunidad clara de compra? ¿Y a partir de qué precio estaría demasiado caro?
+   - COSTES (siempre incluir esta subsección):
+     · ¿Cuál es el TER o coste anual del producto? ¿Es razonable para el tipo de producto?
+     · ¿Hay algún producto similar con menores comisiones que pueda considerarse alternativa?
+     · ¿Dónde se puede comprar en España y a qué coste total (producto + plataforma)?
 
 5. TRES ESCENARIOS POSIBLES EN LOS PRÓXIMOS 12 MESES
    - 🟢 Escenario optimista: ¿qué tendría que pasar y cuánto podría subir?
@@ -1237,6 +1362,11 @@ CONTEXTO IMPORTANTE:
 SALUD FINANCIERA BÁSICA (solo los puntos clave):
 • ¿Tiene más dinero en caja que deudas? (muy positivo si es así)
 • ¿Los beneficios están creciendo o cayendo?
+
+COSTES DEL PRODUCTO (si es fondo o ETF — obligatorio incluir):
+• TER anual: X% — ¿compite bien en costes con productos similares?
+• Impacto del coste en la valoración: si el TER es alto, la rentabilidad real del inversor es menor que la del índice
+• ¿Dónde se puede comprar en España? (MyInvestor, DEGIRO, Indexa…)
 
 ⚠️ VEREDICTO FINAL — elige UNO y justifícalo en 2-3 frases sin tecnicismos:
 🟢 BARATA (buen momento de entrada por valoración) — ...
@@ -1600,10 +1730,17 @@ Realiza un análisis exhaustivo y completo de este producto. Para cada sección,
 • ¿Tiene más dinero en caja que deudas? Responde con SÍ/NO y explica el impacto
 • Calificación crediticia si existe
 
-━━━ 6. ¿ES RENTABLE? — Márgenes y dividendo ━━━
+━━━ 6. ¿ES RENTABLE? — Márgenes, dividendo y COSTES ━━━
 • ROE (rentabilidad sobre capital), márgenes operativo y neto: ¿están por encima o por debajo del sector?
 • Dividendo: ¿reparte? ¿Cuánto en % sobre el precio actual? ¿Es sostenible o está en riesgo?
 • ¿El dividendo ha crecido, se ha mantenido o ha recortado en los últimos años?
+• COSTES DEL PRODUCTO (si es fondo/ETF):
+  - TER anual: X% — ¿es barato (<0.5%), normal (0.5-1%) o caro (>1%)?
+  - Comisión de gestión: X%
+  - ¿Tiene comisión de éxito? — explica el impacto para el inversor
+  - Coste total real: TER + gestión = X%/año. Por cada 10.000€, el inversor paga X€/año solo en costes
+  - Comparación: ¿existe alguna alternativa con costes menores y características similares?
+• ¿Dónde se puede comprar en España? (MyInvestor, Indexa Capital, Finizens, DEGIRO, bancos)
 
 ━━━ 7. ¿QUÉ PODRÍA SALIR MAL? — Riesgos principales ━━━
 • Los 4-5 riesgos principales, explicados en lenguaje cotidiano
@@ -1656,6 +1793,35 @@ Escribe 3 frases que expliquen qué es el producto, cómo está ahora y qué hac
 document.addEventListener('DOMContentLoaded', () => {
     actualizarContador();
     actualizarBadge();
+
+    // ── Rellenar campo ISIN si viene del Buscador ──
+    // Fuentes: 1) variable global leída del <head>  2) sessionStorage
+    const isinFinal  = (window._isinDesdeUrl || sessionStorage.getItem('screener_isin') || '').trim().toUpperCase();
+    const nombreSS   = sessionStorage.getItem('screener_nombre') || '';
+
+    if (isinFinal) {
+        // Intentar rellenar ahora
+        const campo = document.getElementById('isin');
+        if (campo) {
+            campo.value = isinFinal;
+            campo.dispatchEvent(new Event('input')); // trigger el oninput uppercase
+        }
+        // Toast informativo
+        const msg = nombreSS
+            ? '🔍 ' + isinFinal + ' — ' + nombreSS + ' · Elige el tipo de análisis'
+            : '🔍 ' + isinFinal + ' listo · Elige el tipo de análisis';
+        setTimeout(() => toast(msg, 'info', 5000), 300);
+
+        // Limpiar sessionStorage para no reutilizar en la próxima visita
+        sessionStorage.removeItem('screener_isin');
+        sessionStorage.removeItem('screener_nombre');
+    }
+
+    // Event listeners para preview de coste
+    ['dp-ter','dp-gestion'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', actualizarCostePreviewHerr);
+    });
 });
 </script>
 </body>

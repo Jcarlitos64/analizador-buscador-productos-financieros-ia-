@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Analiza acciones, ETFs, fondos y bonos con inteligencia artificial. Veredictos claros en lenguaje sencillo, sin conocimientos previos.">
+    <meta name="description" content="Analiza acciones, ETFs, fondos y bonos con inteligencia artificial. Veredictos claros en lenguaje sencillo, sin conocimientos previos. Incluye TER, comisiones y dónde comprar.">
     <meta name="robots" content="index, follow">
     <meta property="og:title" content="Análisis Financiero con IA">
     <meta property="og:description" content="Analiza cualquier producto financiero con IA. Veredictos claros: COMPRAR, MANTENER o VENDER — explicados sin jerga.">
@@ -32,7 +32,6 @@
             color: white;
         }
 
-        /* ── FONDO ANIMADO ── */
         .bg-orbs {
             position: fixed; inset: 0; pointer-events: none; z-index: 0;
             overflow: hidden;
@@ -51,7 +50,6 @@
             66%       { transform: translate(-20px, 30px) scale(0.97); }
         }
 
-        /* ── LAYOUT ── */
         .contenedor {
             position: relative; z-index: 1;
             max-width: 620px; margin: 0 auto;
@@ -59,7 +57,6 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* ── CABECERA ── */
         .logo-area {
             text-align: center; margin-bottom: 40px;
             animation: fadeUp .6s ease both;
@@ -92,7 +89,6 @@
             line-height: 1.65; max-width: 480px; margin: 0 auto;
         }
 
-        /* ── CARD PRINCIPAL ── */
         .card {
             width: 100%;
             background: rgba(255,255,255,.04);
@@ -106,7 +102,6 @@
         .card:nth-child(2) { animation-delay: .1s; }
         .card:nth-child(3) { animation-delay: .2s; }
 
-        /* ── ZONA DROP ── */
         .seccion-titulo {
             font-family: 'Syne', sans-serif;
             font-size: 14px; font-weight: 700;
@@ -142,7 +137,6 @@
             font-size: 13px; color: #06d6a0;
         }
 
-        /* ── BOTONES ── */
         .btn-primario {
             width: 100%; padding: 17px;
             background: var(--grad); color: white; border: none;
@@ -178,14 +172,12 @@
             color: white;
         }
 
-        /* ── SEPARADOR ── */
         .sep {
             width: 100%; height: 1px;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
             margin: 8px 0 24px;
         }
 
-        /* ── FEATURES ── */
         .features-grid {
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 10px; margin-top: 4px;
@@ -206,7 +198,6 @@
         .feature-item .feco { font-size: 22px; flex-shrink: 0; line-height: 1; }
         .feature-item strong { display: block; color: rgba(255,255,255,.85); font-weight: 600; margin-bottom: 2px; }
 
-        /* ── AVISO GUARDADOS ── */
         .aviso-guardados {
             display: none; width: 100%;
             background: rgba(251,133,0,.08);
@@ -218,7 +209,6 @@
         .aviso-guardados h4 { font-size: 14px; color: #fb8500; margin-bottom: 6px; }
         .aviso-guardados p  { font-size: 13px; color: rgba(251,133,0,.75); line-height: 1.55; margin: 0; }
 
-        /* ── FOOTER ── */
         .footer {
             margin-top: 32px; text-align: center;
             color: rgba(255,255,255,.25); font-size: 12px;
@@ -228,7 +218,6 @@
         .footer a { color: rgba(255,255,255,.35); text-decoration: none; }
         .footer a:hover { color: rgba(255,255,255,.6); }
 
-        /* ── TOAST ── */
         #toast {
             position: fixed; bottom: 24px; right: 24px;
             background: rgba(15,15,26,.95);
@@ -242,13 +231,11 @@
         #toast.ok    { border-color: rgba(6,214,160,.4); color: #06d6a0; }
         #toast.error { border-color: rgba(239,35,60,.4); color: #ef233c; }
 
-        /* ── ANIMACIONES ── */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── RESPONSIVE ── */
         @media (max-width: 500px) {
             .contenedor { padding: 28px 16px 48px; }
             .card { padding: 24px 18px; }
@@ -259,7 +246,6 @@
 </head>
 <body>
 
-<!-- Orbs de fondo -->
 <div class="bg-orbs">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
@@ -268,21 +254,18 @@
 
 <div class="contenedor">
 
-    <!-- CABECERA -->
     <div class="logo-area">
         <span class="logo-ico">🤖</span>
-        <div class="badge-v">v3.1 — Prompts mejorados</div>
+        <div class="badge-v">v3.5 — TER, comisiones y dónde comprar</div>
         <h1>Análisis Financiero<br>con Inteligencia Artificial</h1>
-        <p class="subtitulo">Analiza acciones, ETFs, fondos y bonos. Veredictos claros en lenguaje sencillo — sin necesitar conocimientos financieros.</p>
+        <p class="subtitulo">Analiza acciones, ETFs, fondos y bonos. Veredictos claros en lenguaje sencillo — incluyendo TER, coste total anual y dónde comprar en España.</p>
     </div>
 
-    <!-- AVISO si hay datos guardados -->
     <div id="avisoGuardados" class="aviso-guardados">
         <h4>📂 Tienes análisis guardados en el navegador</h4>
         <p id="textoGuardados">Puedes continuar donde lo dejaste o cargar un archivo de backup.</p>
     </div>
 
-    <!-- CARD: Cargar fichero previo -->
     <div class="card">
         <div class="seccion-titulo">📂 ¿Ya tienes análisis guardados?</div>
         <p class="seccion-desc">Si tienes el archivo <strong style="color:rgba(255,255,255,.7)">analisis_financiero_*.json</strong> de una sesión anterior, cárgalo aquí para recuperar todos tus análisis.</p>
@@ -299,29 +282,30 @@
         <div id="infoCargado"></div>
     </div>
 
-    <!-- BOTONES -->
     <button class="btn-primario" onclick="entrar()">
         🚀 Entrar a la herramienta
     </button>
     <button class="btn-secundario" onclick="window.open('ayuda-analisis-ia.html','_blank')">
         ❓ Ver guía de uso antes de empezar
     </button>
+    <button class="btn-secundario" onclick="window.location.href='buscador-empresas.html'" style="margin-top:8px;">
+        🔍 Ir al Buscador de Empresas con IA
+    </button>
 
     <div class="sep"></div>
 
-    <!-- CARD: Características -->
     <div class="card">
         <div class="features-grid">
             <div class="feature-item"><span class="feco">🌱</span><div><strong>Para principiantes</strong>Análisis en lenguaje sencillo, sin jerga</div></div>
             <div class="feature-item"><span class="feco">🤖</span><div><strong>8 IAs gratuitas</strong>Gemini, DeepSeek, Claude, ChatGPT…</div></div>
-            <div class="feature-item"><span class="feco">🎯</span><div><strong>Veredicto claro</strong>COMPRAR, MANTENER o VENDER siempre</div></div>
+            <div class="feature-item"><span class="feco">💰</span><div><strong>TER y coste total</strong>Cuánto te cuesta cada año tener el producto</div></div>
+            <div class="feature-item"><span class="feco">🏪</span><div><strong>Dónde comprar</strong>MyInvestor, Indexa, Finizens, DEGIRO</div></div>
             <div class="feature-item"><span class="feco">🔒</span><div><strong>100% privado</strong>Sin servidor, sin cuenta, sin datos</div></div>
             <div class="feature-item"><span class="feco">📊</span><div><strong>14 tipos de análisis</strong>Desde básico hasta análisis completo</div></div>
-            <div class="feature-item"><span class="feco">💾</span><div><strong>Backup en JSON</strong>Exporta e importa tus análisis fácilmente</div></div>
+            <div class="feature-item"><span class="feco">🔍</span><div><strong>Buscador de empresas</strong>Screener con IA para encontrar oportunidades</div></div>
         </div>
     </div>
 
-    <!-- FOOTER -->
     <div class="footer">
         <p>Herramienta de análisis financiero con IA · Solo uso informativo</p>
         <p>Los análisis se guardan en tu navegador. Exporta el archivo para hacer copias de seguridad.</p>
@@ -336,13 +320,11 @@
 const STORAGE_KEY = 'analisisFinancierosIA_v3';
 let _datosRecienCargados = [];
 
-// ─── Limpiar localStorage al cargar (privacidad) ───────
 window.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem(STORAGE_KEY);
     document.getElementById('avisoGuardados').style.display = 'none';
 });
 
-// ─── Toast ─────────────────────────────────────────────
 let toastTimer;
 function toast(msg, tipo = 'ok', ms = 2800) {
     const el = document.getElementById('toast');
@@ -351,7 +333,6 @@ function toast(msg, tipo = 'ok', ms = 2800) {
     toastTimer = setTimeout(() => el.style.display = 'none', ms);
 }
 
-// ─── Drag & Drop ───────────────────────────────────────
 function soltar(e) {
     e.preventDefault();
     document.getElementById('zonaDrop').style.borderColor = 'rgba(67,97,238,.5)';
@@ -362,7 +343,6 @@ function cargarArchivo(input) {
     if (input.files[0]) procesarArchivo(input.files[0]);
 }
 
-// ─── Procesar archivo JSON ──────────────────────────────
 function procesarArchivo(file) {
     const reader = new FileReader();
     reader.onload = e => {
@@ -374,7 +354,14 @@ function procesarArchivo(file) {
             }
 
             const datos = json.datos || (Array.isArray(json) ? json : null);
+            if (json.screener) {
+                try { localStorage.setItem('screenerEmpresasIA_v2', JSON.stringify(json.screener)); } catch(e) {}
+            }
             if (!datos) throw new Error('Formato no reconocido. Asegúrate de cargar el archivo correcto (analisis_financiero_*.json).');
+
+            if (json.app === 'cartera-inversion' || json.cartera || json.version === '3.0' && !json.datos) {
+                throw new Error('Este parece ser el archivo de la cartera de inversión, no de análisis. Usa el archivo correcto: analisis-financieros-ia.json');
+            }
 
             _datosRecienCargados = datos;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
@@ -395,7 +382,6 @@ function procesarArchivo(file) {
     reader.readAsText(file);
 }
 
-// ─── Entrar a la herramienta ───────────────────────────
 function entrar() {
     window.location.href = 'herramienta-analisis-ia.html';
 }

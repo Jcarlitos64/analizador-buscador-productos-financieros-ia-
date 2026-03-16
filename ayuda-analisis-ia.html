@@ -135,7 +135,7 @@
 
 <div class="cab">
     <div style="display:flex;align-items:center;gap:12px;">
-        <h1>❓ Ayuda — Análisis Financiero con IA</h1>
+        <h1>❓ Ayuda — Análisis Financiero con IA v3.2</h1>
     </div>
     <div class="cab-der">
         <a href="buscador-empresas.html" class="btn-cab">🔍 Buscador</a>
@@ -147,7 +147,7 @@
 <div class="contenedor">
 
 <input type="text" class="buscador" id="buscador"
-    placeholder="🔍 Busca lo que necesitas: ISIN, guardar, prompt, buscador, IA, JSON…"
+    placeholder="🔍 Busca lo que necesitas: ISIN, TER, comisiones, MyInvestor, guardar, prompt, buscador, IA, JSON…"
     oninput="buscar(this.value)">
 <div id="noResultados" class="no-resultados">No se encontraron resultados para «<span id="terminoBuscado"></span>»</div>
 
@@ -156,6 +156,14 @@
     <h2>🤖 ¿Qué es esta herramienta y para qué sirve?</h2>
     <p>Esta herramienta te ayuda a <strong>analizar productos financieros</strong> (acciones, fondos, ETFs, bonos…) usando <strong>inteligencia artificial gratuita</strong>, sin necesidad de saber economía.</p>
     <p>La idea es sencilla: introduces el código del producto, eliges el tipo de análisis, y la herramienta genera un "prompt" (instrucciones muy detalladas) que puedes pegar en una IA gratuita. La IA te responde y puedes guardar la respuesta aquí.</p>
+    <div class="info azul">
+        <h4>💡 Novedades v3.2</h4>
+        <ul>
+            <li><strong>TER y comisiones</strong> — ahora los análisis incluyen información detallada sobre gastos del producto</li>
+            <li><strong>Dónde comprar</strong> — la IA te indicará si el producto está disponible en MyInvestor, Indexa Capital, Finizens, DEGIRO, etc.</li>
+            <li><strong>Buscador mejorado</strong> — ahora puedes filtrar por comisiones bajas y plataformas</li>
+        </ul>
+    </div>
     <div class="info azul">
         <h4>💡 ¿Para quién es?</h4>
         <ul>
@@ -242,7 +250,7 @@
 </div>
 
 <!-- BUSCADOR DE EMPRESAS -->
-<div class="card seccion-ayuda" data-buscar="buscador empresas screener potencial oportunidades invertir buscar criterios PER dividendo crecimiento filtrar rejilla JSON">
+<div class="card seccion-ayuda" data-buscar="buscador empresas screener potencial oportunidades invertir buscar criterios PER dividendo crecimiento filtrar rejilla JSON comisiones TER MyInvestor Indexa">
     <h2>🔍 Buscador de Empresas con IA — ¿cómo funciona?</h2>
     <p>El <strong>Buscador de Empresas</strong> te permite encontrar empresas con potencial de inversión usando IA. Configuras criterios, la IA busca candidatas y las ves en una rejilla interactiva desde la que puedes lanzar análisis directamente.</p>
     <div class="flujo-buscador">
@@ -265,7 +273,9 @@
                 <strong>💰 Valoración</strong> — PER máximo y EV/EBITDA máximo<br>
                 <strong>🏦 Solidez financiera</strong> — Deuda/EBITDA máxima, caja neta positiva<br>
                 <strong>💸 Dividendo</strong> — Rentabilidad mínima, que crezca o se mantenga<br>
-                <strong>📈 Crecimiento</strong> — Crecimiento mínimo de ingresos y EBITDA<br><br>
+                <strong>📈 Crecimiento</strong> — Crecimiento mínimo de ingresos y EBITDA<br>
+                <strong>💰 Comisiones</strong> — TER máximo, comisión de gestión máxima, evitar comisión de éxito<br>
+                <strong>🏪 Dónde comprar</strong> — Filtrar por disponibilidad en MyInvestor, Indexa, Finizens, DEGIRO<br><br>
                 También puedes filtrar por zona geográfica, capitalización, sector, perfil de riesgo y horizonte.
             </div>
         </div>
@@ -288,9 +298,10 @@
             <p>Copia toda la respuesta de la IA y pégala en el Paso 2 del buscador. La app extrae automáticamente el JSON aunque venga mezclado con texto.</p>
             <div class="detalle">
                 <strong>La rejilla interactiva te permite:</strong><br>
-                · Ordenar por cualquier columna (PER, puntuación, dividendo…)<br>
+                · Ordenar por cualquier columna (PER, puntuación, dividendo, TER, comisión…)<br>
                 · Buscar por nombre, ticker, sector o país<br>
                 · Ver el veredicto con semáforo 🟢/🟡/🔴 de cada empresa<br>
+                · Ver las plataformas donde comprar (🏦 MyInvestor, 📊 Indexa, 💼 Finizens, 🌍 DEGIRO)<br>
                 · Pulsar <strong>«📊 Analizar»</strong> para ir al análisis completo<br>
                 · Exportar resultados a CSV · Los resultados se guardan automáticamente
             </div>
@@ -416,7 +427,7 @@
 </div>
 
 <!-- GLOSARIO -->
-<div class="card seccion-ayuda" data-buscar="glosario términos financieros ISIN ticker PER EBITDA fair value deuda neta caja ETF fondo acción bono renta fija dividendo">
+<div class="card seccion-ayuda" data-buscar="glosario términos financieros ISIN ticker PER EBITDA fair value deuda neta caja ETF fondo acción bono renta fija dividendo TER comisiones MyInvestor Indexa Finizens">
     <h2>📖 Glosario de términos básicos</h2>
     <div class="glosario-grid">
         <div class="glosario-item"><div class="term">ISIN</div><div class="def">Código de 12 caracteres que identifica un fondo, ETF o acción. Como el DNI de un producto financiero.</div></div>
@@ -427,6 +438,14 @@
         <div class="glosario-item"><div class="term">Deuda neta</div><div class="def">Deuda total menos el dinero en caja. Si es negativa, tiene más dinero que deudas.</div><div class="escala">◎ Negativa = excelente</div></div>
         <div class="glosario-item"><div class="term">Deuda/EBITDA</div><div class="def">Cuántos años de beneficios necesita para pagar toda su deuda.</div><div class="escala">◎ &lt;1 excelente · 1-2 bueno · &gt;3 preocupante</div></div>
         <div class="glosario-item"><div class="term">ETF</div><div class="def">Fondo que cotiza en bolsa. Muy baratos de comisiones. Se compran con un broker.</div></div>
+        <div class="glosario-item"><div class="term">TER</div><div class="def">Total Expense Ratio. Comisión total anual del fondo o ETF (gestión + otros gastos).</div><div class="escala">◎ &lt;0.3% excelente · 0.3-0.7% normal · &gt;1% caro</div></div>
+        <div class="glosario-item"><div class="term">Comisión de gestión</div><div class="def">Lo que cobra el gestor por administrar el fondo. No incluye otros gastos.</div></div>
+        <div class="glosario-item"><div class="term">Comisión de éxito</div><div class="def">Porcentaje extra que se lleva el gestor si supera al índice de referencia. Mejor evitarla si eres principiante.</div></div>
+        <div class="glosario-item"><div class="term">MyInvestor</div><div class="def">Plataforma española para comprar fondos indexados, ETFs y acciones. Sin comisión de custodia en muchos productos. Permite fondos de Vanguard, iShares y Amundi entre otros.</div><div class="escala">◎ Ideal para fondos indexados y ETFs</div></div>
+        <div class="glosario-item"><div class="term">Indexa Capital</div><div class="def">Roboadvisor español líder. Invierte automáticamente en carteras de fondos indexados según tu perfil. Comisión total ~0.5% anual (incluido el TER de los fondos).</div><div class="escala">◎ Ideal para inversores que no quieren decidir</div></div>
+        <div class="glosario-item"><div class="term">Finizens</div><div class="def">Roboadvisor español similar a Indexa. Carteras automatizadas de fondos indexados con rebalanceo automático.</div><div class="escala">◎ Alternativa a Indexa con buenas condiciones</div></div>
+        <div class="glosario-item"><div class="term">DEGIRO</div><div class="def">Broker europeo de bajo coste para comprar ETFs y acciones internacionales. Tiene una lista de ETFs sin comisión de compra/venta.</div><div class="escala">◎ Ideal para ETFs y acciones internacionales</div></div>
+        <div class="glosario-item"><div class="term">Coste total anual</div><div class="def">TER + comisión de gestión. Por ejemplo, un TER del 0.20% más una gestión del 0.10% son 0.30%/año. En 10.000€ son 30€/año.</div><div class="escala">◎ &lt;0.5% excelente · 0.5-1% normal · &gt;1.5% caro</div></div>
         <div class="glosario-item"><div class="term">DCA</div><div class="def">Invertir la misma cantidad cada mes. Reduce el riesgo de comprar en el peor momento.</div></div>
         <div class="glosario-item"><div class="term">ROE</div><div class="def">Cuánto beneficio genera la empresa por cada euro de los accionistas.</div><div class="escala">◎ &gt;15% bueno · &gt;20% excelente</div></div>
         <div class="glosario-item"><div class="term">Dividendo</div><div class="def">Parte de los beneficios que la empresa reparte a sus accionistas periódicamente.</div></div>
@@ -435,7 +454,7 @@
 </div>
 
 <!-- FAQ -->
-<div class="card seccion-ayuda" data-buscar="preguntas frecuentes FAQ duda gratis privado datos seguro servidor cuenta buscador JSON">
+<div class="card seccion-ayuda" data-buscar="preguntas frecuentes FAQ duda gratis privado datos seguro servidor cuenta buscador JSON comisiones TER myinvestor indexa finizens degiro coste total donde comprar plataforma">
     <h2>❓ Preguntas frecuentes</h2>
     <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">¿Es gratis esta herramienta? <span class="chev">▼</span></div>
@@ -444,6 +463,26 @@
     <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">¿Mis análisis son privados? ¿Se envían a algún servidor? <span class="chev">▼</span></div>
         <div class="faq-a">Completamente privados. Los análisis se guardan solo en tu navegador. Ningún dato sale de tu ordenador a través de esta herramienta. La única conexión externa es cuando tú abres la IA de terceros.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Qué es el TER y por qué es importante? <span class="chev">▼</span></div>
+        <div class="faq-a">El TER (Total Expense Ratio) es la comisión total anual que cobra un fondo o ETF. Incluye comisión de gestión, gastos de auditoría, depositaría, etc. Es importante porque resta directamente de tu rentabilidad. Por ejemplo, si un fondo gana un 7% al año y tiene un TER del 1%, tú ganas un 6%. Busca TER bajos (menos del 0.5% en fondos indexados).<br><br>El impacto a largo plazo es enorme: 10.000€ invertidos durante 20 años al 7% anual con un coste del 0.2% acaban en ~37.000€, pero con un coste del 1.5% acaban en ~30.000€. La diferencia es de 7.000€ solo por las comisiones.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Cuál es la diferencia entre TER, comisión de gestión y comisión de éxito? <span class="chev">▼</span></div>
+        <div class="faq-a"><strong>TER (Total Expense Ratio):</strong> es el coste total anual del fondo, incluyendo gestión, custodia, auditoría y otros gastos. Es el dato más importante.<br><br>
+        <strong>Comisión de gestión:</strong> la parte que cobra el gestor por tomar decisiones de inversión. Suele ser la mayor parte del TER.<br><br>
+        <strong>Comisión de éxito:</strong> un porcentaje extra que cobra el gestor solo si supera al índice de referencia. Parece justo, pero en la práctica suele beneficiar más al gestor que al inversor. Lo ideal es evitar fondos con comisión de éxito, especialmente para principiantes.<br><br>
+        <strong>Consejo:</strong> compara siempre el <em>coste total = TER + posible gestión adicional</em>. Para fondos indexados, busca TER por debajo del 0.3%.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Dónde es mejor comprar en España: MyInvestor, Indexa, Finizens o DEGIRO? <span class="chev">▼</span></div>
+        <div class="faq-a">Depende de lo que busques:<br><br>
+        🏦 <strong>MyInvestor:</strong> ideal si quieres elegir tú los fondos o ETFs. Sin comisión de custodia en fondos indexados. Acceso a Vanguard, iShares, Amundi. Buena opción para empezar con un fondo indexado global como el Vanguard Global Stock.<br><br>
+        📊 <strong>Indexa Capital:</strong> ideal si prefieres delegar. Te hacen una cartera automatizada según tu perfil. Coste total ~0.5%/año. No eliges los fondos individualmente.<br><br>
+        💼 <strong>Finizens:</strong> similar a Indexa. Carteras automatizadas. Buena alternativa si Indexa no te convence.<br><br>
+        🌍 <strong>DEGIRO:</strong> ideal para ETFs internacionales y acciones extranjeras. Tienen una lista de ETFs sin comisión de compra. No tiene cuentas en euros con fondo garantizado de depósitos.<br><br>
+        Para un principiante: empieza por <strong>MyInvestor</strong> (un fondo indexado global) o <strong>Indexa</strong> (si no quieres pensar nada).</div>
     </div>
     <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">¿Por qué el Buscador necesita que copie y pegue el JSON manualmente? <span class="chev">▼</span></div>
@@ -463,6 +502,14 @@
     <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">¿Qué hago si pierdo mis análisis? <span class="chev">▼</span></div>
         <div class="faq-a">Si tienes el archivo JSON guardado, puedes recuperarlos cargándolo desde la pantalla de inicio o desde «📂 Cargar análisis».<br><br>Si no tienes el archivo y limpiaste el navegador, los análisis se habrán perdido. La herramienta te avisa cuando vas a cerrar la página si tienes análisis sin guardar.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Dónde puedo comprar estos productos? <span class="chev">▼</span></div>
+        <div class="faq-a">Depende del producto:<br>
+        • <strong>Acciones y ETFs internacionales:</strong> DEGIRO, Interactive Brokers, MyInvestor<br>
+        • <strong>Fondos de inversión:</strong> MyInvestor, Indexa Capital, Finizens (fondos indexados)<br>
+        • <strong>Bonos del Estado:</strong> Banco de España, entidades financieras<br>
+        • <strong>Planes de pensiones:</strong> Indexa Capital, MyInvestor, bancos tradicionales</div>
     </div>
     <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">¿Puedo usar esta herramienta en el móvil? <span class="chev">▼</span></div>
