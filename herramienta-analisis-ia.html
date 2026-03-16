@@ -8,8 +8,53 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script>
-        // Leer ISIN de la URL inmediatamente (antes del DOM)
-        window._isinDesdeUrl = new URLSearchParams(window.location.search).get('isin') || '';
+        // ── Leer ISIN desde TODAS las fuentes posibles (máxima compatibilidad file://) ──
+        (function() {
+            var isin = '';
+            var nombre = '';
+            // 1. Query string ?isin=
+            try {
+                var p = new URLSearchParams(window.location.search);
+                isin   = p.get('isin')   || '';
+                nombre = p.get('nombre') || '';
+            } catch(e) {}
+            // 2. Hash #isin=
+            if (!isin) {
+                try {
+                    var h = window.location.hash.replace('#','');
+                    var hp = new URLSearchParams(h);
+                    isin = hp.get('isin') || '';
+                } catch(e) {}
+            }
+            // 3. sessionStorage
+            if (!isin) {
+                try { isin   = sessionStorage.getItem('screener_isin')   || ''; } catch(e) {}
+                try { nombre = sessionStorage.getItem('screener_nombre') || ''; } catch(e) {}
+            }
+            // 4. localStorage (fallback extra)
+            if (!isin) {
+                try { isin   = localStorage.getItem('screener_isin_tmp')   || ''; } catch(e) {}
+                try { nombre = localStorage.getItem('screener_nombre_tmp') || ''; } catch(e) {}
+            }
+            
+            isin = isin.trim().toUpperCase();
+            window._isinDesdeUrl   = isin;
+            window._nombreDesdeUrl = decodeURIComponent(nombre);
+            
+            // Polling: rellenar el campo en cuanto exista en el DOM
+            if (isin) {
+                var intentos = 0;
+                var _t = setInterval(function() {
+                    var c = document.getElementById('isin');
+                    if (c) { c.value = isin; clearInterval(_t); }
+                    if (++intentos > 60) clearInterval(_t); // máx 3s
+                }, 50);
+            }
+            
+            // Limpiar localStorage para no reutilizar
+            try { localStorage.removeItem('screener_isin_tmp');   } catch(e) {}
+            try { localStorage.removeItem('screener_nombre_tmp'); } catch(e) {}
+        })();
     </script>
     <style>
         :root {
@@ -776,32 +821,20 @@ function getDatosProducto() {
 function buildDatosProductoTexto() {
     const d = getDatosProducto();
     if (d.ter === 0 && d.gest === 0 && d.exito === '' && d.plats.length === 0) return '';
-    let txt = '
-
-INFORMACIÓN CONOCIDA DEL PRODUCTO (usa estos datos directamente):
-';
-    if (d.ter > 0) txt += `• TER (Total Expense Ratio): ${d.ter.toFixed(2)}% anual
-`;
-    if (d.gest > 0) txt += `• Comisión de gestión: ${d.gest.toFixed(2)}% anual
-`;
+    let txt = '\n\nINFORMACIÓN CONOCIDA DEL PRODUCTO (usa estos datos directamente):\n';
+    if (d.ter > 0) txt += '• TER (Total Expense Ratio): ' + d.ter.toFixed(2) + '% anual\n';
+    if (d.gest > 0) txt += '• Comisión de gestión: ' + d.gest.toFixed(2) + '% anual\n';
     if (d.ter > 0 || d.gest > 0) {
-        txt += `• Coste total anual estimado: ${d.total.toFixed(2)}% → Por cada 1.000€ invertidos, pagas ${(d.total*10).toFixed(2)}€/año en comisiones del producto
-`;
-        txt += `  (Un fondo con ${d.total.toFixed(2)}% de costes necesita rendir ${d.total.toFixed(2)}% más que uno sin costes para igualarlo)
-`;
+        txt += '• Coste total anual estimado: ' + d.total.toFixed(2) + '% → Por cada 1.000€ invertidos, pagas ' + (d.total*10).toFixed(2) + '€/año en comisiones del producto\n';
+        txt += '  (Un fondo con ' + d.total.toFixed(2) + '% de costes necesita rendir ' + d.total.toFixed(2) + '% más que uno sin costes para igualarlo)\n';
     }
-    if (d.exito === 'no') txt += '• Comisión de éxito: NO tiene ✓ (mejor para el inversor)
-';
-    if (d.exito === 'si') txt += '• Comisión de éxito: SÍ tiene ⚠️ (resta a la rentabilidad cuando supera el benchmark)
-';
+    if (d.exito === 'no') txt += '• Comisión de éxito: NO tiene ✓ (mejor para el inversor)\n';
+    if (d.exito === 'si') txt += '• Comisión de éxito: SÍ tiene ⚠️ (resta a la rentabilidad cuando supera el benchmark)\n';
     if (d.plats.length > 0) {
-        txt += `• Disponible en: ${d.plats.join(', ')}
-`;
-        txt += '  → Ten en cuenta también las comisiones de la plataforma (custodia, compra/venta)
-';
+        txt += '• Disponible en: ' + d.plats.join(', ') + '\n';
+        txt += '  → Ten en cuenta también las comisiones de la plataforma (custodia, compra/venta)\n';
     }
-    txt += '
-Análisis de costes obligatorio: incluye en tu análisis si el coste total anual es competitivo para el tipo de producto, cómo afecta a la rentabilidad real a 10-20 años, y si existe una alternativa más barata similar.';
+    txt += '\nAnálisis de costes obligatorio: incluye en tu análisis si el coste total anual es competitivo para el tipo de producto, cómo afecta a la rentabilidad real a 10-20 años, y si existe una alternativa más barata similar.';
     return txt;
 }
 
@@ -1794,27 +1827,25 @@ document.addEventListener('DOMContentLoaded', () => {
     actualizarContador();
     actualizarBadge();
 
-    // ── Rellenar campo ISIN si viene del Buscador ──
-    // Fuentes: 1) variable global leída del <head>  2) sessionStorage
-    const isinFinal  = (window._isinDesdeUrl || sessionStorage.getItem('screener_isin') || '').trim().toUpperCase();
-    const nombreSS   = sessionStorage.getItem('screener_nombre') || '';
+    // ── ISIN desde Buscador — el head script ya lo puso en el campo ──
+    // Aquí solo mostramos el toast y limpiamos
+    const isinFinal  = window._isinDesdeUrl || '';
+    const nombreFinal = window._nombreDesdeUrl || '';
 
     if (isinFinal) {
-        // Intentar rellenar ahora
+        // Asegurarnos de que el campo tiene el valor (por si el polling no llegó a tiempo)
         const campo = document.getElementById('isin');
-        if (campo) {
-            campo.value = isinFinal;
-            campo.dispatchEvent(new Event('input')); // trigger el oninput uppercase
-        }
-        // Toast informativo
-        const msg = nombreSS
-            ? '🔍 ' + isinFinal + ' — ' + nombreSS + ' · Elige el tipo de análisis'
-            : '🔍 ' + isinFinal + ' listo · Elige el tipo de análisis';
+        if (campo && !campo.value) campo.value = isinFinal;
+
+        // Toast
+        const msg = nombreFinal
+            ? '🔍 ' + isinFinal + ' — ' + decodeURIComponent(nombreFinal) + ' · Elige el tipo de análisis'
+            : '🔍 ' + isinFinal + ' · Elige el tipo de análisis';
         setTimeout(() => toast(msg, 'info', 5000), 300);
 
-        // Limpiar sessionStorage para no reutilizar en la próxima visita
-        sessionStorage.removeItem('screener_isin');
-        sessionStorage.removeItem('screener_nombre');
+        // Limpiar
+        try { sessionStorage.removeItem('screener_isin');   } catch(e) {}
+        try { sessionStorage.removeItem('screener_nombre'); } catch(e) {}
     }
 
     // Event listeners para preview de coste

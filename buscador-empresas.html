@@ -1315,10 +1315,13 @@ function filtrarRejilla(q) {
 function analizarEmpresa(isinEnc, nombreEnc) {
     const isin   = decodeURIComponent(isinEnc);
     const nombre = decodeURIComponent(nombreEnc);
-    // Guardamos en sessionStorage para que la herramienta principal lo coja
-    sessionStorage.setItem('screener_isin',   isin);
-    sessionStorage.setItem('screener_nombre', nombre);
-    window.location.href = `herramienta-analisis-ia.html?isin=${encodeURIComponent(isin)}`;
+    // Pasar el ISIN por múltiples vías para máxima compatibilidad con file://
+    try { sessionStorage.setItem('screener_isin',   isin); } catch(e) {}
+    try { sessionStorage.setItem('screener_nombre', nombre); } catch(e) {}
+    try { localStorage.setItem('screener_isin_tmp',   isin); } catch(e) {}
+    try { localStorage.setItem('screener_nombre_tmp', nombre); } catch(e) {}
+    // URL con ?isin= Y con #isin= (el hash funciona mejor en file://)
+    window.location.href = 'herramienta-analisis-ia.html?isin=' + encodeURIComponent(isin) + '&nombre=' + encodeURIComponent(nombre) + '#isin=' + encodeURIComponent(isin);
 }
 
 // ══════════════════════════════════════════════════════
